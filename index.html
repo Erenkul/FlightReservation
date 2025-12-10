@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SkyVoyage Elite - Premium Flight Booking</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/animation.css">
+</head>
+<body>
+  <custom-navbar></custom-navbar>
+
+  <main>
+    <!-- Hero Section -->
+    <section class="hero-section">
+      <!-- Canvas element for airplane animation - must be present -->
+      <canvas id="airplane-canvas" class="airplane-canvas"></canvas>
+
+      <!-- Animated Clouds -->
+      <div class="cloud cloud-slow cloud-1"></div>
+      <div class="cloud cloud-slow cloud-2"></div>
+      <div class="cloud cloud-medium cloud-3"></div>
+      <div class="cloud cloud-medium cloud-4"></div>
+      <div class="cloud cloud-fast cloud-5"></div>
+      <div class="cloud cloud-fast cloud-6"></div>
+
+      <!-- Hero Content -->
+      <div class="hero-content">
+        <h1 class="hero-title">Journey Beyond Horizons</h1>
+        <p class="hero-subtitle">Experience Premium Travel with SkyVoyage Elite</p>
+
+        <!-- Glassmorphism Search Card -->
+        <div class="search-card">
+          <!-- Trip Type Toggle -->
+          <fieldset class="trip-toggle">
+            <legend class="sr-only">Trip Type</legend>
+            <label class="toggle-option">
+              <input type="radio" name="trip-type" value="round-trip" checked>
+              <span>Round Trip</span>
+            </label>
+            <label class="toggle-option">
+              <input type="radio" name="trip-type" value="one-way">
+              <span>One Way</span>
+            </label>
+          </fieldset>
+
+          <!-- Search Inputs -->
+          <div class="search-inputs">
+            <div class="input-group">
+              <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                <circle cx="12" cy="10" r="3"></circle>
+              </svg>
+              <input type="text" id="departure-input" placeholder="Departure City" class="search-input">
+            </div>
+
+            <div class="input-group">
+              <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                <circle cx="12" cy="10" r="3"></circle>
+              </svg>
+              <input type="text" id="arrival-input" placeholder="Arrival City" class="search-input">
+            </div>
+
+            <div class="input-group">
+              <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+              <input type="date" id="date-input" class="search-input">
+            </div>
+
+            <div class="input-group">
+              <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+              </svg>
+              <select id="passengers-input" class="search-input">
+                <option value="1">1 Passenger</option>
+                <option value="2">2 Passengers</option>
+                <option value="3">3 Passengers</option>
+                <option value="4">4 Passengers</option>
+                <option value="5">5 Passengers</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Search Button -->
+          <button class="search-button" onclick="navigateToSearch()">Search Flights</button>
+        </div>
+
+        <!-- Features Grid -->
+        <div class="features-grid">
+          <div class="feature">
+            <div class="feature-number">500+</div>
+            <p class="feature-label">Routes</p>
+          </div>
+          <div class="feature">
+            <div class="feature-number">50M+</div>
+            <p class="feature-label">Passengers</p>
+          </div>
+          <div class="feature">
+            <div class="feature-number">120+</div>
+            <p class="feature-label">Countries</p>
+          </div>
+          <div class="feature">
+            <div class="feature-number">4.9</div>
+            <p class="feature-label">Rating</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features-section">
+      <div class="container">
+        <h2>Why Choose SkyVoyage Elite?</h2>
+        <div class="features-cards">
+          <div class="card">
+            <div class="card-icon safety-icon">S</div>
+            <h3>Premium Safety</h3>
+            <p>Highest international safety standards with 24/7 monitoring and compliance.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon comfort-icon">C</div>
+            <h3>Elite Comfort</h3>
+            <p>Spacious seating, premium amenities, and exceptional service throughout.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon global-icon">G</div>
+            <h3>Global Network</h3>
+            <p>200+ destinations worldwide with seamless connections and partnerships.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+      <div class="container">
+        <h2>Ready to Fly?</h2>
+        <p>Book your premium flight today and experience the difference.</p>
+        <button class="btn btn-secondary" onclick="navigateToSearch()">Explore Flights</button>
+      </div>
+    </section>
+  </main>
+
+  <custom-footer></custom-footer>
+
+  <!-- Floating Globe Button -->
+  <button class="globe-button" title="Open 3D Globe" onclick="openGlobeModal()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="10"></circle>
+      <line x1="2" y1="12" x2="22" y2="12"></line>
+      <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+    </svg>
+  </button>
+
+  <!-- Globe Modal -->
+  <div class="globe-modal" id="globeModal">
+    <div class="globe-modal-content">
+      <button class="globe-modal-close" onclick="closeGlobeModal()">&times;</button>
+      <h2 class="globe-title">Select Your Destination</h2>
+      <p class="globe-subtitle">Click on a city to select it</p>
+      <div class="globe-canvas-container" id="globeContainer"></div>
+      <div class="globe-tooltip" id="globeTooltip"></div>
+      <div class="globe-instructions">
+        <span>🖱️ Drag to rotate</span>
+        <span>🔍 Scroll to zoom</span>
+        <span>👆 Click city to select</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Three.js for Globe -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  
+  <!-- Script load order is critical - components first, then airplane canvas, then main script -->
+  <script src="components/navbar.js"></script>
+  <script src="components/footer.js"></script>
+  <script src="js/airplane-canvas.js"></script>
+  <script src="js/globe.js"></script>
+  <script src="js/script.js"></script>
+</body>
+</html>

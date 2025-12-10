@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seat Confirmation - SkyVoyage Elite</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/animation.css">
+</head>
+<body>
+  <custom-navbar></custom-navbar>
+
+  <main class="confirmation-main">
+    <div class="container confirmation-container">
+      <div class="card confirmation-center">
+        <div class="confirmation-success">✓</div>
+        <h1 class="confirmation-title">Seat Confirmed!</h1>
+        <p style="color: #666; margin-bottom: 2rem;">Your seat has been successfully reserved.</p>
+
+        <div style="background: #f0fdf4; border: 2px solid #10b981; border-radius: 0.75rem; padding: 2rem; margin-bottom: 2rem;">
+          <div style="font-size: 3rem; margin-bottom: 1rem;" id="selectedSeatDisplay">--</div>
+          <p style="margin: 0; color: #666;" id="seatTypeDisplay">Select a seat</p>
+        </div>
+
+        <div class="itinerary-section" style="text-align: left;">
+          <h3 style="margin-top: 0;">Summary</h3>
+          <div class="price-row" style="display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid var(--border);">
+            <span>Passenger</span>
+            <strong>John Doe</strong>
+          </div>
+          <div class="price-row" style="display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid var(--border);">
+            <span>Seat(s)</span>
+            <strong id="seatSummary">--</strong>
+          </div>
+          <div class="price-row" style="display: flex; justify-content: space-between; padding: 0.75rem 0;">
+            <span>Total</span>
+            <strong style="color: var(--accent); font-size: 1.2rem;">$1,635.50</strong>
+          </div>
+        </div>
+
+        <button class="btn btn-primary" style="width: 100%; padding: 1rem; margin: 2rem 0 1rem 0;" onclick="completeBooking()">Complete Booking</button>
+        <button class="btn btn-outline" style="width: 100%; padding: 1rem;" onclick="window.location.href='seat.html'">Change Seat</button>
+      </div>
+    </div>
+  </main>
+
+  <custom-footer></custom-footer>
+
+  <script src="components/navbar.js"></script>
+  <script src="components/footer.js"></script>
+  <script src="js/script.js"></script>
+  <script>
+    // Load selected seats from localStorage
+    window.addEventListener('DOMContentLoaded', () => {
+      const seats = JSON.parse(localStorage.getItem('skyvoyage_seats') || '[]');
+      const seatDisplay = document.getElementById('selectedSeatDisplay');
+      const seatType = document.getElementById('seatTypeDisplay');
+      const seatSummary = document.getElementById('seatSummary');
+      
+      if (seats.length > 0) {
+        seatDisplay.textContent = seats[0];
+        seatSummary.textContent = seats.join(', ');
+        const col = seats[0].slice(-1);
+        if (col === 'A' || col === 'F') {
+          seatType.textContent = 'Window Seat';
+        } else if (col === 'C' || col === 'D') {
+          seatType.textContent = 'Aisle Seat';
+        } else {
+          seatType.textContent = 'Middle Seat';
+        }
+      }
+    });
+    
+    function completeBooking() {
+      // Save booking to localStorage
+      const seats = JSON.parse(localStorage.getItem('skyvoyage_seats') || '[]');
+      const booking = {
+        id: 'SKY' + Date.now(),
+        pnr: 'SK' + Math.random().toString(36).substring(2, 8).toUpperCase(),
+        seats: seats,
+        date: new Date().toISOString()
+      };
+      
+      const allBookings = JSON.parse(localStorage.getItem('skyvoyage_all_bookings') || '[]');
+      allBookings.push(booking);
+      localStorage.setItem('skyvoyage_all_bookings', JSON.stringify(allBookings));
+      localStorage.setItem('skyvoyage_booking', JSON.stringify(booking));
+      
+      window.location.href = 'confirmation.html';
+    }
+  </script>
+</body>
+</html>

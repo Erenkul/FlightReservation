@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Trips - SkyVoyage Elite</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/animation.css">
+</head>
+<body>
+  <custom-navbar></custom-navbar>
+
+  <main class="mytrips-main">
+    <div class="container">
+      <h1 style="margin-bottom: 0.5rem;">My Trips</h1>
+      
+      <div class="mytrips-intro">
+        <p>View your upcoming and past flight reservations</p>
+      </div>
+
+      <!-- Tabs -->
+      <div class="trip-tabs">
+        <button class="trip-tab active" onclick="filterTrips('upcoming')">Upcoming Trips</button>
+        <button class="trip-tab" onclick="filterTrips('past')">Past Trips</button>
+      </div>
+
+      <!-- Trip Cards -->
+      <div class="trip-cards" id="tripCardsContainer">
+        <!-- Trips will be rendered dynamically -->
+      </div>
+
+      <!-- Trip Details Modal -->
+      <div class="trip-modal" id="tripModal">
+        <div class="trip-modal-content card">
+          <button class="modal-close" onclick="closeTripModal()">&times;</button>
+          <h2 style="margin-bottom: 1.5rem;">Flight Details</h2>
+          <div id="tripModalBody"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <custom-footer></custom-footer>
+
+  <script>
+    let currentFilter = 'upcoming';
+    
+    function filterTrips(type) {
+      currentFilter = type;
+      document.querySelectorAll('.trip-tab').forEach(tab => tab.classList.remove('active'));
+      event.target.classList.add('active');
+      renderTrips();
+    }
+    
+    function renderTrips() {
+      const container = document.getElementById('tripCardsContainer');
+      let trips = JSON.parse(localStorage.getItem('skyvoyage_all_bookings') || '[]');
+      
+      container.innerHTML = '';
+      
+      if (trips.length === 0) {
+        container.innerHTML = `
+          <div class="card empty-state">
+            <div class="empty-state-icon">✈</div>
+            <h3>No Trips Yet</h3>
+            <p>You haven't booked any flights. Start your adventure now!</p>
+            <button class="btn btn-primary" onclick="window.location.href='search_result.html'">Book a Flight</button>
+          </div>
+        `;
+        return;
+      }
+      
+      trips.forEach(trip => {
+        const card = document.createElement('div');
+        card.className = 'card trip-card';
+        card.innerHTML = `
+          <div class="trip-header">
+            <span class="trip-badge">Upcoming</span>
+            <span class="trip-flight-code">${trip.flight || 'SV203'}</span>
+          </div>
+          <div class="trip-route">
+            <div class="trip-airports">
+              <div>${trip.from || 'JFK'}</div>
+              <div></div>
+              <div>${trip.to || 'LHR'}</div>
+            </div>
+            <div class="trip-cities">
+              <span>${trip.fromCity || 'New York'}</span>
+              <span>${trip.toCity || 'London'}</span>
+            </div>
+          </div>
+          <div class="trip-footer">
+            <p class="trip-detail"><strong>PNR:</strong> ${trip.pnr || 'N/A'}</p>
+            <p class="trip-detail"><strong>Date:</strong> ${trip.date || 'TBD'}</p>
+            <p class="trip-detail"><strong>Seats:</strong> ${trip.seats ? trip.seats.join(', ') : 'Not selected'}</p>
+            <div class="trip-actions">
+              <button class="btn btn-primary" onclick="viewTripDetails('${trip.id}')">View Details</button>
+              <button class="btn btn-outline" onclick="changeSeat('${trip.id}')">Change Seat</button>
+              <button class="btn btn-danger" onclick="cancelTrip('${trip.id}')">Cancel</button>
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+    
+    function viewTripDetails(tripId) {
+      const trips = JSON.parse(localStorage.getItem('skyvoyage_all_bookings') || '[]');
+      const trip = trips.find(t => t.id === tripId);
+      if (!trip) return;
+      
+      const modal = document.getElementById('tripModal');
+      const body = document.getElementById('tripModalBody');
+      
+      body.innerHTML = `
+        <div class="trip-detail-grid">
+          <div class="detail-row">
+            <span class="detail-label">PNR Code</span>
+            <span class="detail-value pnr-highlight">${trip.pnr || 'N/A'}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Flight</span>
+            <span class="detail-value">${trip.flight || 'SV203'}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Route</span>
+            <span class="detail-value">${trip.fromCity || 'New York'} → ${trip.toCity || 'London'}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Date</span>
+            <span class="detail-value">${trip.date || 'TBD'}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Time</span>
+            <span class="detail-value">${trip.time || '08:30 AM'}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Seats</span>
+            <span class="detail-value">${trip.seats ? trip.seats.join(', ') : 'Not selected'}</span>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-outline" onclick="changeSeat('${trip.id}')">Change Seat</button>
+          <button class="btn btn-danger" onclick="cancelTrip('${trip.id}')">Cancel Booking</button>
+        </div>
+      `;
+      
+      modal.classList.add('active');
+    }
+    
+    function closeTripModal() {
+      document.getElementById('tripModal').classList.remove('active');
+    }
+    
+    function changeSeat(tripId) {
+      // Store the trip ID being modified
+      localStorage.setItem('modifying_trip_id', tripId);
+      // Clear current seat selection
+      localStorage.removeItem('skyvoyage_seats');
+      closeTripModal();
+      window.location.href = 'seat.html';
+    }
+    
+    function cancelTrip(tripId) {
+      if (!confirm('Are you sure you want to cancel this booking? This action cannot be undone.')) {
+        return;
+      }
+      
+      let trips = JSON.parse(localStorage.getItem('skyvoyage_all_bookings') || '[]');
+      trips = trips.filter(t => t.id !== tripId);
+      localStorage.setItem('skyvoyage_all_bookings', JSON.stringify(trips));
+      
+      closeTripModal();
+      renderTrips();
+      
+      alert('Booking cancelled successfully.');
+    }
+    
+    // Initialize
+    window.addEventListener('DOMContentLoaded', () => {
+      let trips = JSON.parse(localStorage.getItem('skyvoyage_all_bookings') || '[]');
+      if (trips.length === 0) {
+        trips = [
+          {
+            id: 'SKY001',
+            pnr: 'SK789456',
+            flight: 'BA308',
+            from: 'JFK',
+            to: 'LHR',
+            fromCity: 'New York',
+            toCity: 'London',
+            date: 'Dec 25, 2024',
+            time: '08:30 AM',
+            seats: ['3E', '3F']
+          },
+          {
+            id: 'SKY002',
+            pnr: 'SK654321',
+            flight: 'AF227',
+            from: 'CDG',
+            to: 'AMS',
+            fromCity: 'Paris',
+            toCity: 'Amsterdam',
+            date: 'Jan 10, 2025',
+            time: '10:00 AM',
+            seats: ['12A']
+          }
+        ];
+        localStorage.setItem('skyvoyage_all_bookings', JSON.stringify(trips));
+      }
+      renderTrips();
+    });
+    
+    // Close modal on outside click
+    document.getElementById('tripModal')?.addEventListener('click', (e) => {
+      if (e.target.id === 'tripModal') closeTripModal();
+    });
+  </script>
+
+  <script src="components/navbar.js"></script>
+  <script src="components/footer.js"></script>
+  <script src="js/script.js"></script>
+</body>
+</html>

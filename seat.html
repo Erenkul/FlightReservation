@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seat Selection - SkyVoyage Elite</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/animation.css">
+</head>
+<body>
+  <custom-navbar></custom-navbar>
+
+  <main class="seat-main">
+    <div class="container">
+      <h1 style="margin-bottom: 0.5rem;">Step 3 of 4: Select Your Seats</h1>
+      
+      <div class="seat-intro">
+        <p>Choose your preferred seating for maximum comfort.</p>
+      </div>
+
+      <div class="seat-grid">
+        <!-- Seat Map -->
+        <div class="card">
+          <h2 style="margin-bottom: 1.5rem;">Seat Map - Boeing 777</h2>
+          <div class="seat-legend">
+            <div class="legend-item">
+              <div class="legend-box" style="background: #10b981;"></div>
+              <span>Available</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-box" style="background: #cbd5e1;"></div>
+              <span>Taken</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-box" style="background: var(--accent);"></div>
+              <span>Selected</span>
+            </div>
+          </div>
+
+          <!-- Seat Map Container -->
+          <div style="overflow-x: auto;">
+            <div id="seatMapContainer"></div>
+          </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="card seat-sidebar">
+          <h3>Your Selection</h3>
+          <div class="sidebar-section">
+            <p class="sidebar-label">Passenger</p>
+            <p class="sidebar-value">John Doe</p>
+          </div>
+          <div class="sidebar-section">
+            <p class="sidebar-label">Selected Seats</p>
+            <p class="sidebar-value" id="selectedSeatCount">0</p>
+          </div>
+          <div style="margin-bottom: 1rem;">
+            <div class="price-row" style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+              <span style="color: #666;">Seat Price</span>
+              <strong>Included</strong>
+            </div>
+          </div>
+          <button class="btn btn-primary" style="width: 100%; padding: 1rem;" onclick="window.location.href='seat_result.html'">Continue to Payment</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <custom-footer></custom-footer>
+
+  <script src="components/navbar.js"></script>
+  <script src="components/footer.js"></script>
+  <script src="js/seat-map.js"></script>
+  <script src="js/script.js"></script>
+</body>
+</html>

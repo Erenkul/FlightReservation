@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register - SkyVoyage Elite</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/animation.css">
+</head>
+<body>
+  <custom-navbar></custom-navbar>
+
+  <main class="auth-main">
+    <div class="auth-container">
+      <div class="card">
+        <h1 style="text-align: center; margin-bottom: 0.5rem;">Create Your Account</h1>
+        <p style="text-align: center; color: #666; margin-bottom: 2rem;">Join SkyVoyage Elite for exclusive deals</p>
+
+        <form class="auth-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label>First Name</label>
+              <input type="text" placeholder="John" required>
+            </div>
+            <div class="form-group">
+              <label>Last Name</label>
+              <input type="text" placeholder="Doe" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Email Address</label>
+            <input type="email" placeholder="your@email.com" required>
+          </div>
+
+          <div class="form-group">
+            <label>Password</label>
+            <input type="password" placeholder="Min. 8 characters" required>
+          </div>
+
+          <div class="form-group">
+            <label>Confirm Password</label>
+            <input type="password" placeholder="Confirm your password" required>
+          </div>
+
+          <label class="form-checkbox">
+            <input type="checkbox" required>
+            <span style="font-size: 0.9rem;">I agree to the Terms of Service and Privacy Policy</span>
+          </label>
+
+          <button type="submit" class="btn btn-primary" style="width: 100%; padding: 1rem; font-size: 1rem;" onclick="window.location.href='mytrips.html'; return false;">Create Account</button>
+        </form>
+
+        <p class="form-footer-text">Already have an account? <a href="login.html">Sign in</a></p>
+      </div>
+    </div>
+  </main>
+
+  <custom-footer></custom-footer>
+
+  <script src="components/navbar.js"></script>
+  <script src="components/footer.js"></script>
+  <script src="js/script.js"></script>
+</body>
+</html>

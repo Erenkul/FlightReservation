@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Booking Confirmation - SkyVoyage Elite</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/animation.css">
+</head>
+<body>
+  <custom-navbar></custom-navbar>
+
+  <main class="confirmation-main">
+    <div class="container confirmation-container">
+      <div class="card confirmation-center">
+        <div class="confirmation-success">✈</div>
+        <h1 class="confirmation-title">Booking Confirmed!</h1>
+        <p style="color: #666; margin-bottom: 2rem;">Your flight has been successfully booked. A confirmation email has been sent.</p>
+
+        <div class="pnr-box">
+          <p class="pnr-label">Reservation Code (PNR)</p>
+          <p class="pnr-code" id="pnrCode">SK789456</p>
+          <button class="btn btn-outline" style="width: 100%; padding: 0.75rem;" onclick="copyPNR()">Copy PNR Code</button>
+        </div>
+
+        <div class="itinerary-section">
+          <h3 style="margin-top: 0; border-bottom: 2px solid var(--border); padding-bottom: 1rem;">Flight Itinerary</h3>
+          <div style="margin-bottom: 1rem;">
+            <p style="margin: 0.5rem 0;"><strong>From:</strong> New York (JFK)</p>
+            <p style="margin: 0.5rem 0;"><strong>To:</strong> London (LHR)</p>
+            <p style="margin: 0.5rem 0;"><strong>Departure:</strong> Mon, 28 Oct 2024 at 08:30 AM</p>
+            <p style="margin: 0.5rem 0;"><strong>Arrival:</strong> Mon, 28 Oct 2024 at 06:30 PM</p>
+            <p style="margin: 0.5rem 0;"><strong>Duration:</strong> 10h 00m</p>
+          </div>
+          <h3 style="border-top: 2px solid var(--border); padding-top: 1rem; margin-bottom: 1rem;">Passengers</h3>
+          <p style="margin: 0.5rem 0;">1. John Doe - Seat 3E</p>
+          <p style="margin: 0.5rem 0;">2. Jane Smith - Seat 3F</p>
+        </div>
+
+        <div class="confirmation-price-box">
+          <div class="price-row" style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+            <span>Subtotal</span>
+            <strong>$1,350.00</strong>
+          </div>
+          <div class="price-row" style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+            <span>Taxes & Fees</span>
+            <strong>$285.50</strong>
+          </div>
+          <div class="price-row" style="display: flex; justify-content: space-between; border-top: 2px solid var(--border); padding-top: 1rem; margin-top: 1rem;">
+            <span style="font-weight: bold;">Total</span>
+            <strong style="color: var(--accent); font-size: 1.2rem;">$1,635.50</strong>
+          </div>
+        </div>
+
+        <button class="btn btn-primary" style="width: 100%; padding: 1rem; margin-bottom: 1rem;" onclick="window.location.href='mytrips.html'">View My Trips</button>
+        <button class="btn btn-outline" style="width: 100%; padding: 1rem;" onclick="window.location.href='index.html'">Back to Home</button>
+      </div>
+    </div>
+  </main>
+
+  <custom-footer></custom-footer>
+
+  <script src="components/navbar.js"></script>
+  <script src="components/footer.js"></script>
+  <script src="js/script.js"></script>
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      const booking = JSON.parse(localStorage.getItem('skyvoyage_booking') || 'null');
+      if (booking && booking.pnr) {
+        document.getElementById('pnrCode').textContent = booking.pnr;
+      }
+    });
+    
+    function copyPNR() {
+      const pnr = document.getElementById('pnrCode').textContent;
+      navigator.clipboard.writeText(pnr);
+      alert('PNR copied to clipboard!');
+    }
+  </script>
+</body>
+</html>

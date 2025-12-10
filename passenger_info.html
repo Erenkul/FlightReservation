@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Passenger Information - SkyVoyage Elite</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/animation.css">
+</head>
+<body>
+  <custom-navbar></custom-navbar>
+
+  <main class="passenger-main">
+    <div class="container">
+      <h1 style="margin-bottom: 0.5rem;">Step 2 of 4: Passenger Information</h1>
+      
+      <div class="passenger-intro">
+        <p>Please provide accurate passenger details matching your travel documents.</p>
+      </div>
+
+      <div class="passenger-grid">
+        <!-- Form -->
+        <form class="card passenger-form">
+          <h2>Enter Passenger Details</h2>
+
+          <div class="form-group">
+            <label>Full Name *</label>
+            <input type="text" placeholder="As it appears on your passport" required>
+          </div>
+
+          <div class="form-group">
+            <label>Date of Birth *</label>
+            <input type="date" required>
+          </div>
+
+          <div class="form-group">
+            <label>Passport / ID Number *</label>
+            <input type="text" placeholder="e.g., A12345678" required>
+          </div>
+
+          <div class="form-group">
+            <label>Email Address *</label>
+            <input type="email" placeholder="your@email.com" required>
+          </div>
+
+          <div class="form-group">
+            <label>Phone Number *</label>
+            <input type="tel" placeholder="+1 (555) 123-4567" required>
+          </div>
+
+          <button type="button" class="btn btn-primary" style="width: 100%; padding: 1rem;" onclick="window.location.href='seat.html'">Continue to Seat Selection</button>
+        </form>
+
+        <!-- Summary -->
+        <div class="card passenger-summary">
+          <h2>Flight Itinerary</h2>
+          <div class="itinerary-section">
+            <div class="itinerary-airports">
+              <div>JFK</div>
+              <div></div>
+              <div>LHR</div>
+            </div>
+            <p style="color: #666; margin: 0; font-size: 0.9rem;">New York → London</p>
+          </div>
+          <div style="margin-bottom: 1rem;">
+            <p class="itinerary-detail"><strong>Departure:</strong> Mon, 28 Oct 2024, 08:30 AM</p>
+            <p class="itinerary-detail"><strong>Duration:</strong> 10h 00m</p>
+            <p class="itinerary-detail"><strong>Aircraft:</strong> Boeing 777</p>
+          </div>
+          <div style="border-top: 2px solid var(--border); padding-top: 1rem;">
+            <div class="price-row" style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+              <span>Total Price</span>
+              <strong style="font-size: 1.2rem; color: var(--accent);">$1,635.50</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <custom-footer></custom-footer>
+
+  <script src="components/navbar.js"></script>
+  <script src="components/footer.js"></script>
+  <script src="js/script.js"></script>
+</body>
+</html>
