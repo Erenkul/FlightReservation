@@ -31,6 +31,23 @@
 
         <!-- Glassmorphism Search Card -->
         <div class="search-card">
+          <form action="{{ url_for('index') }}" method="POST" class="search-card">
+    <div class="search-inputs">
+        <div class="input-group">
+            <input type="text" name="from_city" id="departure-input" placeholder="Departure City" class="search-input">
+        </div>
+
+        <div class="input-group">
+            <input type="text" name="to_city" id="arrival-input" placeholder="Arrival City" class="search-input">
+        </div>
+
+        <div class="input-group">
+            <input type="date" name="flight_date" id="date-input" class="search-input">
+        </div>
+        </div>
+
+    <button type="submit" class="search-button">Search Flights</button>
+</form>
           <!-- Trip Type Toggle -->
           <fieldset class="trip-toggle">
             <legend class="sr-only">Trip Type</legend>

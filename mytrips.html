@@ -24,10 +24,34 @@
         <button class="trip-tab" onclick="filterTrips('past')">Past Trips</button>
       </div>
 
-      <!-- Trip Cards -->
-      <div class="trip-cards" id="tripCardsContainer">
-        <!-- Trips will be rendered dynamically -->
-      </div>
+<div class="trip-cards" id="tripCardsContainer">
+    {% if trips %}
+        {% for trip in trips %}
+        <div class="card trip-card">
+            <div class="trip-header">
+                <span class="trip-badge">Confirmed</span>
+                <span class="trip-flight-code">Flight #{{ trip[1] }}</span>
+            </div>
+            <div class="trip-route">
+                <div class="trip-airports">
+                    <div>Gate: {{ trip[3] }}</div>
+                    <div>✈</div>
+                    <div>Model: {{ trip[4] }}</div>
+                </div>
+            </div>
+            <div class="trip-footer">
+                <p class="trip-detail"><strong>Date:</strong> {{ trip[0] }}</p>
+                <p class="trip-detail"><strong>Seat:</strong> {{ trip[5] }}</p>
+                <p class="trip-detail"><strong>Price:</strong> ${{ trip[6] }}</p>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="card empty-state">
+            <h3>Henüz biletiniz yok.</h3>
+        </div>
+    {% endif %}
+</div>
 
       <!-- Trip Details Modal -->
       <div class="trip-modal" id="tripModal">

@@ -6,6 +6,41 @@
   <title>Passenger Information - SkyVoyage Elite</title>
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/animation.css">
+  <form class="card passenger-form" action="{{ url_for('passenger_info') }}" method="POST">
+    <h2>Enter Passenger Details</h2>
+
+    <div class="form-group">
+        <label>Full Name (First) *</label>
+        <input type="text" name="first_name" placeholder="First Name" required>
+    </div>
+    
+    <div class="form-group">
+        <label>Last Name *</label>
+        <input type="text" name="last_name" placeholder="Last Name" required>
+    </div>
+
+    <div class="form-group">
+        <label>Date of Birth *</label>
+        <input type="date" name="dob" required>
+    </div>
+
+    <div class="form-group">
+        <label>Passport / ID Number (SSN) *</label>
+        <input type="text" name="ssn" placeholder="e.g., A12345678" required>
+    </div>
+
+    <div class="form-group">
+        <label>Email Address *</label>
+        <input type="email" name="email" placeholder="your@email.com" required>
+    </div>
+
+    <div class="form-group">
+        <label>Phone Number *</label>
+        <input type="tel" name="phone" placeholder="+1 (555) 123-4567" required>
+    </div>
+
+    <button type="submit" class="btn btn-primary" style="width: 100%; padding: 1rem;">Continue to Booking</button>
+</form>
 </head>
 <body>
   <custom-navbar></custom-navbar>
