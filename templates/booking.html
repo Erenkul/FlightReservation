@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Booking Summary - SkyVoyage Elite</title>
-  <link rel="stylesheet" href="/css/style.css">
-  <link rel="stylesheet" href="/css/animation.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/animation.css') }}">
 </head>
 <body>
   <custom-navbar></custom-navbar>
@@ -15,7 +15,6 @@
       <h1 style="margin-bottom: 2rem;">Booking Summary</h1>
 
       <div class="booking-grid">
-        <!-- Left Column -->
         <div>
           <div class="card booking-section">
             <h2>Flight Details</h2>
@@ -43,12 +42,12 @@
             <p class="passenger-item">
               <strong>{{ passenger.first_name if passenger else '' }} {{ passenger.last_name if passenger else '' }}</strong><br>
               Email: {{ passenger.email if passenger else '—' }}<br>
-              Phone: {{ passenger.phone if passenger else '—' }}
+              Phone: {{ passenger.phone if passenger else '—' }}<br>
+              <strong>Seat: {{ seat if seat else 'TBD' }}</strong>
             </p>
           </div>
         </div>
 
-        <!-- Right Column -->
         <div>
           <div class="card booking-sticky">
             <h2 style="margin-bottom: 1rem; border-bottom: 2px solid var(--border); padding-bottom: 1rem;">Price Breakdown</h2>
@@ -70,7 +69,7 @@
               <span style="font-size: 1.1rem; font-weight: bold;">Total</span>
               <span class="total-amount">$1,635.00</span>
             </div>
-            <form method="POST" action="/confirm_booking">
+            <form method="POST" action="{{ url_for('confirm_booking') }}">
               <button class="btn btn-secondary" style="width: 100%; margin-top: 1rem; padding: 1rem;" type="submit">Confirm & Pay</button>
             </form>
           </div>
@@ -81,8 +80,8 @@
 
   <custom-footer></custom-footer>
 
-  <script src="/components/navbar.js"></script>
-  <script src="/components/footer.js"></script>
-  <script src="/js/script.js"></script>
+  <script src="{{ url_for('static', filename='components/navbar.js') }}"></script>
+  <script src="{{ url_for('static', filename='components/footer.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
 </html>

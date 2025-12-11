@@ -1,41 +1,66 @@
-import cx_Oracle
 import os
+import cx_Oracle
+from dotenv import load_dotenv
 
-# Basit bir session pool ile tekrar kullanılabilir bağlantı
-_POOL = None
+load_dotenv()
 
+# BURADA init_oracle_client OLMAMALI (app.py'ye taşıdık)
+# 🔌 Bağlantı Fonksiyonu
 
-def _ensure_pool():
-    global _POOL
-    if _POOL:
-        return _POOL
-
-    user = os.getenv("ORACLE_USER", "SYSTEM")
-    password = os.getenv("ORACLE_PASSWORD", "hr")
-    host = os.getenv("ORACLE_HOST", "localhost")
-    port = int(os.getenv("ORACLE_PORT", "1521"))
-    service = os.getenv("ORACLE_SERVICE", "XE")
-
-    dsn = cx_Oracle.makedsn(host, port, service_name=service)
-
-    # Pool değerleri küçük tutuldu; gereksinime göre güncellenebilir
-    _POOL = cx_Oracle.SessionPool(
-        user=user,
-        password=password,
-        dsn=dsn,
-        min=1,
-        max=5,
-        increment=1,
-        threaded=True,
-        getmode=cx_Oracle.SPOOL_ATTRVAL_WAIT,
-    )
-    return _POOL
-
+# ----------------------------------------------------------------------
 
 def get_connection():
-    try:
-        pool = _ensure_pool()
-        return pool.acquire()
-    except cx_Oracle.Error as e:
-        print(f"Veritabanı bağlantı hatası: {e}")
-        return None
+
+    """
+
+    Veritabanına bağlantı kurar ve bağlantı nesnesini döndürür.
+
+    """
+    user = os.getenv("ORA_USER")
+    password = os.getenv("ORA_PASSWORD")
+    host = os.getenv("ORA_HOST")
+    port = os.getenv("ORA_PORT")
+    service = os.getenv("ORA_SERVICE")
+
+    dsn = cx_Oracle.makedsn(host, port, service_name=service)
+    conn = cx_Oracle.connect(user=user, password=password, dsn=dsn)
+    return conn
+# ----------------------------------------------------------------------
+
+# 📄 Tüm kayıtları döndür (SELECT çoklu sonuçlar)
+
+# ----------------------------------------------------------------------
+
+def query_all(sql, params=None):
+
+    with get_connection() as conn:
+        cur = conn.cursor()
+        cur.execute(sql, params or [])
+        cols = [d[0].upper() for d in cur.description]
+        data = [dict(zip(cols, row)) for row in cur.fetchall()]
+        return data
+
+# ----------------------------------------------------------------------
+
+# 📄 Tek bir kayıt döndür (ör. detay sayfaları için)
+
+# ----------------------------------------------------------------------
+
+def query_one(sql, params=None):
+    with get_connection() as conn:
+        cur = conn.cursor()
+        cur.execute(sql, params or [])
+        row = cur.fetchone()
+        return row
+# ----------------------------------------------------------------------
+
+# ✏️ Veri ekleme, silme, güncelleme (INSERT / UPDATE / DELETE)
+
+# ----------------------------------------------------------------------
+
+def execute(sql, params=None):
+
+    with get_connection() as conn:
+        cur = conn.cursor()
+        cur.execute(sql, params or [])
+        conn.commit()

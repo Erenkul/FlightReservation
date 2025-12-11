@@ -4,19 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SkyVoyage Elite - Premium Flight Booking</title>
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/animation.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/animation.css') }}">
 </head>
 <body>
   <custom-navbar></custom-navbar>
 
   <main>
-    <!-- Hero Section -->
     <section class="hero-section">
-      <!-- Canvas element for airplane animation - must be present -->
       <canvas id="airplane-canvas" class="airplane-canvas"></canvas>
 
-      <!-- Animated Clouds -->
       <div class="cloud cloud-slow cloud-1"></div>
       <div class="cloud cloud-slow cloud-2"></div>
       <div class="cloud cloud-medium cloud-3"></div>
@@ -24,14 +21,11 @@
       <div class="cloud cloud-fast cloud-5"></div>
       <div class="cloud cloud-fast cloud-6"></div>
 
-      <!-- Hero Content -->
       <div class="hero-content">
         <h1 class="hero-title">Journey Beyond Horizons</h1>
         <p class="hero-subtitle">Experience Premium Travel with SkyVoyage Elite</p>
 
-        <!-- Glassmorphism Search Card -->
-        <form action="/" method="POST" class="search-card">
-          <!-- Trip Type Toggle -->
+        <form action="{{ url_for('index') }}" method="POST" class="search-card">
           <fieldset class="trip-toggle">
             <legend class="sr-only">Trip Type</legend>
             <label class="toggle-option">
@@ -44,7 +38,6 @@
             </label>
           </fieldset>
 
-          <!-- Search Inputs -->
           <div class="search-inputs">
             <div class="input-group">
               <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -89,11 +82,9 @@
             </div>
           </div>
 
-          <!-- Search Button -->
           <button type="submit" class="search-button">Search Flights</button>
         </form>
 
-        <!-- Features Grid -->
         <div class="features-grid">
           <div class="feature">
             <div class="feature-number">500+</div>
@@ -115,7 +106,6 @@
       </div>
     </section>
 
-    <!-- Features Section -->
     <section class="features-section">
       <div class="container">
         <h2>Why Choose SkyVoyage Elite?</h2>
@@ -139,19 +129,17 @@
       </div>
     </section>
 
-    <!-- CTA Section -->
     <section class="cta-section">
       <div class="container">
         <h2>Ready to Fly?</h2>
         <p>Book your premium flight today and experience the difference.</p>
-        <button class="btn btn-secondary" onclick="navigateToSearch()">Explore Flights</button>
+        <button class="btn btn-secondary" onclick="document.querySelector('.search-card').scrollIntoView({behavior: 'smooth'})">Explore Flights</button>
       </div>
     </section>
   </main>
 
   <custom-footer></custom-footer>
 
-  <!-- Floating Globe Button -->
   <button class="globe-button" title="Open 3D Globe" onclick="openGlobeModal()">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <circle cx="12" cy="12" r="10"></circle>
@@ -160,7 +148,6 @@
     </svg>
   </button>
 
-  <!-- Globe Modal -->
   <div class="globe-modal" id="globeModal">
     <div class="globe-modal-content">
       <button class="globe-modal-close" onclick="closeGlobeModal()">&times;</button>
@@ -176,14 +163,12 @@
     </div>
   </div>
 
-  <!-- Three.js for Globe -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   
-  <!-- Script load order is critical - components first, then airplane canvas, then main script -->
-  <script src="components/navbar.js"></script>
-  <script src="components/footer.js"></script>
-  <script src="js/airplane-canvas.js"></script>
-  <script src="js/globe.js"></script>
-  <script src="js/script.js"></script>
+  <script src="{{ url_for('static', filename='components/navbar.js') }}"></script>
+  <script src="{{ url_for('static', filename='components/footer.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/airplane-canvas.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/globe.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
 </html>

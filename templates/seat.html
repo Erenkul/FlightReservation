@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Seat Selection - SkyVoyage Elite</title>
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/animation.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/animation.css') }}">
 </head>
 <body>
   <custom-navbar></custom-navbar>
@@ -19,7 +19,6 @@
       </div>
 
       <div class="seat-grid">
-        <!-- Seat Map -->
         <div class="card">
           <h2 style="margin-bottom: 1.5rem;">Seat Map - Boeing 777</h2>
           <div class="seat-legend">
@@ -37,18 +36,16 @@
             </div>
           </div>
 
-          <!-- Seat Map Container -->
           <div style="overflow-x: auto;">
             <div id="seatMapContainer"></div>
           </div>
         </div>
 
-        <!-- Sidebar -->
         <div class="card seat-sidebar">
           <h3>Your Selection</h3>
           <div class="sidebar-section">
             <p class="sidebar-label">Passenger</p>
-            <p class="sidebar-value">John Doe</p>
+            <p class="sidebar-value">{{ session.get('passenger', {}).get('first_name', 'Passenger') }}</p>
           </div>
           <div class="sidebar-section">
             <p class="sidebar-label">Selected Seats</p>
@@ -60,7 +57,12 @@
               <strong>Included</strong>
             </div>
           </div>
-          <button class="btn btn-primary" style="width: 100%; padding: 1rem;" onclick="window.location.href='seat_result.html'">Continue to Payment</button>
+          
+          <form action="{{ url_for('seat_selection') }}" method="POST" onsubmit="return prepareSeatSubmission(event)">
+            <input type="hidden" name="selected_seat" id="hiddenSeatInput">
+            <button type="submit" class="btn btn-primary" style="width: 100%; padding: 1rem;">Continue to Payment</button>
+          </form>
+
         </div>
       </div>
     </div>
@@ -68,9 +70,24 @@
 
   <custom-footer></custom-footer>
 
-  <script src="components/navbar.js"></script>
-  <script src="components/footer.js"></script>
-  <script src="js/seat-map.js"></script>
-  <script src="js/script.js"></script>
+  <script src="{{ url_for('static', filename='components/navbar.js') }}"></script>
+  <script src="{{ url_for('static', filename='components/footer.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/seat-map.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+  
+  <script>
+    // Gönderimden önce localStorage'daki koltuğu form inputuna aktar
+    function prepareSeatSubmission(e) {
+      const seats = JSON.parse(localStorage.getItem('skyvoyage_seats') || '[]');
+      if (seats.length === 0) {
+        alert("Please select at least one seat.");
+        e.preventDefault();
+        return false;
+      }
+      // Tek yolcu varsayımıyla ilk koltuğu alıyoruz
+      document.getElementById('hiddenSeatInput').value = seats[0];
+      return true;
+    }
+  </script>
 </body>
 </html>

@@ -15,10 +15,16 @@ import logging
 
 # Serve templates and static files from the project root (keeps current structure intact)
 # static_url_path="" lets asset references like /css/style.css resolve without /static prefix
-app = Flask(__name__, static_folder=".", template_folder=".", static_url_path="")
-app.secret_key = "skyvoyage_secret_key"
+# Bu satır, HTML'leri otomatik olarak 'templates', CSS/JS'leri 'static' klasöründe arar.
+app = Flask(__name__)
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
+
+try:
+    cx_Oracle.init_oracle_client(lib_dir=r"C:\Users\Ozi\Desktop\sql\instantclient_21_19")
+except Exception as e:
+    print("Client zaten yüklü veya hata:", e)
+
 
 # --- Static aliases for component files (keeps existing folder names) ---
 @app.route("/static/js/components/<path:filename>")
@@ -173,36 +179,54 @@ def index():
             flash("Uçuş bulunamadı!", "error")
 
     return render_template("index.html")
+# app.py
 
-# 2. YOLCU BİLGİLERİ GİRİŞİ
+# ... (Mevcut importlar ve tanımlar)
+
+# 2. YOLCU BİLGİLERİ GİRİŞİ (GÜNCELLENDİ)
 @app.route("/passenger_info", methods=["GET", "POST"])
 def passenger_info():
     if request.method == "POST":
-        # Form verilerini al
         session["passenger"] = {
-            "ssn": request.form["ssn"],  # Manuel girilen ID
+            "ssn": request.form["ssn"],
             "first_name": request.form["first_name"],
             "last_name": request.form["last_name"],
             "email": request.form["email"],
             "phone": request.form["phone"],
             "dob": request.form["dob"],
-            "gender": "U",  # Formda yoksa varsayılan
+            "gender": "U", 
         }
-        return redirect(url_for("confirm_booking"))
+        # DEĞİŞİKLİK: Doğrudan onaya gitmek yerine koltuk seçimine gidiyoruz
+        return redirect(url_for("seat_selection"))
         
     return render_template("passenger_info.html")
 
-# 3. REZERVASYON ONAY (Booking Summary & Insert)
+# YENİ ROTA: KOLTUK SEÇİMİ
+@app.route("/seat_selection", methods=["GET", "POST"])
+def seat_selection():
+    if request.method == "POST":
+        # Formdan gelen koltuk bilgisini al
+        seat_no = request.form.get("selected_seat")
+        if seat_no:
+            session["selected_seat"] = seat_no
+            return redirect(url_for("confirm_booking"))
+        else:
+            flash("Lütfen bir koltuk seçin.", "error")
+            
+    return render_template("seat.html")
+
+# 3. REZERVASYON ONAY (GÜNCELLENDİ)
 @app.route("/confirm_booking", methods=["GET", "POST"])
 def confirm_booking():
     flight_id = session.get("selected_flight")
     flight_data = session.get("flight_details")
     passenger = session.get("passenger")
+    # DEĞİŞİKLİK: Session'dan seçilen koltuğu al, yoksa varsayılan ata
+    selected_seat = session.get("selected_seat", "TBD")
 
     if not flight_id or not passenger:
         return redirect(url_for("index"))
 
-    # POST: "Confirm & Pay" butonuna basıldı
     if request.method == "POST":
         conn = get_connection()
         if not conn:
@@ -211,8 +235,7 @@ def confirm_booking():
 
         cursor = conn.cursor()
         try:
-            # A) Yolcu Ekleme (Varsa hata vermemesi için kontrol edilebilir veya MERGE kullanılabilir)
-            # Biz burada basitçe önce var mı diye bakıyoruz:
+            # A) Yolcu Ekleme (Aynı kalıyor)
             check_user = "SELECT SSN FROM Passenger WHERE SSN = :1"
             cursor.execute(check_user, (passenger["ssn"],))
             
@@ -234,26 +257,25 @@ def confirm_booking():
                     ),
                 )
 
-            # B) Booking Ekleme
+            # B) Booking Ekleme (GÜNCELLENDİ)
             booking_date = datetime.now()
             
-            # Booking tablosuna ekle
+            # DEĞİŞİKLİK: seatNo parametresi artık dinamik (selected_seat)
             ins_book = """
                 INSERT INTO Booking (fNo, bSSN, bookingDate, seatNo, ticketPrice, baggageCount)
                 VALUES (:1, :2, :3, :4, :5, :6)
             """
             cursor.execute(
                 ins_book,
-                (flight_id, passenger["ssn"], booking_date, "12A", 1500, 1),
+                (flight_id, passenger["ssn"], booking_date, selected_seat, 1500, 1),
             )
 
-            # EconomyClass Tablosuna ekle (Zorunlu ilişki)
+            # EconomyClass Tablosuna ekle
             ins_eco = "INSERT INTO EconomyClass (EflightNo, ESSN, EbookingDate) VALUES (:1, :2, :3)"
             cursor.execute(ins_eco, (flight_id, passenger["ssn"], booking_date))
 
             conn.commit()
             
-            # PNR Kodu oluştur (Gösterim amaçlı)
             pnr_code = f"PNR{flight_id}{passenger['ssn'][-4:]}"
             return render_template("confirmation.html", pnr=pnr_code)
 
@@ -268,9 +290,8 @@ def confirm_booking():
             except Exception:
                 pass
 
-    # GET: Sayfa görüntüleme
-    return render_template("booking.html", passenger=passenger, flight=flight_data)
-
+    # GET isteği için sayfayı render et
+    return render_template("booking.html", passenger=passenger, flight=flight_data, seat=selected_seat)
 # 4. BİLETLERİM
 @app.route("/mytrips")
 def mytrips():
@@ -471,6 +492,105 @@ def reports():
         flash(err, "error")
         data = {"top_flights": [], "capacity_over_avg": [], "bags_by_gate": []}
     return render_template("reports.html", data=data)
+
+
+# --- AUTHENTICATION ROUTES (LOGIN / REGISTER / LOGOUT) ---
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        email = request.form.get("email")
+        ssn = request.form.get("password")  # Şifre yerine SSN kullanıyoruz (DB yapısına göre)
+        
+        conn = get_connection()
+        if not conn:
+            flash("Veritabanı bağlantısı yok.", "error")
+            return render_template("login.html")
+            
+        try:
+            cursor = conn.cursor()
+            # Kullanıcıyı Email ve SSN ile sorgula
+            sql = "SELECT SSN, firstName, lastName, email, phoneNumber, dateOfBirth FROM Passenger WHERE email = :1 AND SSN = :2"
+            cursor.execute(sql, (email, ssn))
+            user = cursor.fetchone()
+            
+            if user:
+                # Oturum aç
+                session["passenger"] = {
+                    "ssn": user[0],
+                    "first_name": user[1],
+                    "last_name": user[2],
+                    "email": user[3],
+                    "phone": user[4],
+                    # Tarih nesnesini string'e çeviriyoruz
+                    "dob": user[5].strftime("%Y-%m-%d") if user[5] else None
+                }
+                flash(f"Hoşgeldiniz, {user[1]}!", "success")
+                return redirect(url_for("mytrips"))
+            else:
+                flash("Hatalı Email veya Kimlik No (SSN).", "error")
+                
+        except cx_Oracle.Error as e:
+            flash(f"Giriş hatası: {e}", "error")
+        finally:
+            try:
+                conn.close()
+            except:
+                pass
+                
+    return render_template("login.html")
+
+
+@app.route("/register", methods=["GET", "POST"])
+def register():
+    if request.method == "POST":
+        # Form verilerini al
+        first_name = request.form.get("first_name")
+        last_name = request.form.get("last_name")
+        email = request.form.get("email")
+        ssn = request.form.get("ssn")      # Password alanı yerine SSN
+        phone = request.form.get("phone")
+        dob_raw = request.form.get("dob")
+        gender = request.form.get("gender", "U")
+
+        conn = get_connection()
+        if not conn:
+            flash("Bağlantı hatası.", "error")
+            return render_template("register.html")
+
+        try:
+            cursor = conn.cursor()
+            # Ekleme sorgusu
+            sql = """
+                INSERT INTO Passenger (SSN, email, firstName, lastName, gender, dateOfBirth, phoneNumber)
+                VALUES (:1, :2, :3, :4, :5, TO_DATE(:6, 'YYYY-MM-DD'), :7)
+            """
+            cursor.execute(sql, (ssn, email, first_name, last_name, gender, dob_raw, phone))
+            conn.commit()
+            
+            flash("Kayıt başarılı! Lütfen giriş yapın.", "success")
+            return redirect(url_for("login"))
+            
+        except cx_Oracle.Error as e:
+            conn.rollback()
+            flash(f"Kayıt hatası (SSN veya Email kullanılıyor olabilir): {e}", "error")
+        finally:
+            try:
+                conn.close()
+            except:
+                pass
+
+    return render_template("register.html")
+
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    flash("Çıkış yapıldı.", "success")
+    return redirect(url_for("index"))
+
+
+
 
 if __name__ == "__main__":
     app.run(debug=True)

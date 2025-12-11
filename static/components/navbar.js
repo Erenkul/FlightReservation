@@ -204,16 +204,16 @@ class CustomNavbar extends HTMLElement {
           </a>
 
           <ul class="nav-links" id="navLinks">
-            <li><a href="index.html">Home</a></li>
-            <li><a href="search_result.html">Flights</a></li>
-            <li><a href="mytrips.html">My Trips</a></li>
-            <li><a href="/reports">Reports</a></li>
+            <li><a href="/index.html">Home</a></li>
+            <li><a href="/search_result.html">Flights</a></li>
+            <li><a href="/mytrips.html">My Trips</a></li>
+            <li><a href="/reports.html">Reports</a></li>
             <li><a href="#contact">Contact</a></li>
           </ul>
 
           <div class="nav-actions">
-            <button class="nav-btn nav-btn-login" onclick="window.location.href='login.html'">Log In</button>
-            <button class="nav-btn nav-btn-signup" onclick="window.location.href='register.html'">Sign Up</button>
+            <button class="nav-btn nav-btn-login" onclick="window.location.href='/login.html'">Log In</button>
+            <button class="nav-btn nav-btn-signup" onclick="window.location.href='/register.html'">Sign Up</button>
           </div>
 
           <button class="hamburger" id="hamburger">
