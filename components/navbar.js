@@ -27,9 +27,10 @@ class CustomNavbar extends HTMLElement {
           position: sticky;
           top: 0;
           z-index: 1000;
-          backdrop-filter: blur(10px);
-          border-bottom: 1px solid rgba(255, 255, 255, ${navStyle === "transparent" ? "0.1" : "0.2"});
-          background: ${navStyle === "transparent" ? "rgba(15, 23, 42, 0.3)" : "var(--primary)"};
+          backdrop-filter: blur(12px);
+          border-bottom: 1px solid rgba(255, 255, 255, ${navStyle === "transparent" ? "0.16" : "0.25"});
+          background: ${navStyle === "transparent" ? "rgba(15, 23, 42, 0.65)" : "var(--primary)"};
+          box-shadow: 0 10px 30px rgba(0,0,0,0.18);
           padding: 1rem 0;
           transition: all 0.3s ease;
         }
@@ -206,6 +207,7 @@ class CustomNavbar extends HTMLElement {
             <li><a href="index.html">Home</a></li>
             <li><a href="search_result.html">Flights</a></li>
             <li><a href="mytrips.html">My Trips</a></li>
+            <li><a href="/reports">Reports</a></li>
             <li><a href="#contact">Contact</a></li>
           </ul>
 

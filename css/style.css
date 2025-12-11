@@ -1196,12 +1196,15 @@ body.dark-mode .card {
 
 .trip-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 1.5rem;
 }
 
 .trip-card {
   padding: 1.5rem;
+  border: 1px solid var(--border);
+  background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
 }
 
 .trip-header {
@@ -1258,16 +1261,58 @@ body.dark-mode .card {
 .trip-detail {
   margin: 0.25rem 0;
   font-size: 0.9rem;
+  color: #475569;
+}
+
+.trip-footer {
+  margin-top: 1rem;
+  background: #f8fafc;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  border: 1px solid var(--border);
 }
 
 .empty-state {
   text-align: center;
   padding: 3rem;
+  border: 1px dashed var(--border);
 }
 
 .empty-state-icon {
   font-size: 3rem;
   margin-bottom: 1rem;
+}
+
+/* Data tables (reports) */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.data-table thead {
+  background: #f8fafc;
+}
+
+.data-table th,
+.data-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+
+.data-table tbody tr:hover {
+  background: #f1f5f9;
+}
+
+.data-table th {
+  font-weight: 700;
+  color: var(--primary);
 }
 
 /* Trip Actions */

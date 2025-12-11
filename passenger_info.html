@@ -4,119 +4,98 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Passenger Information - SkyVoyage Elite</title>
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/animation.css">
-  <form class="card passenger-form" action="{{ url_for('passenger_info') }}" method="POST">
-    <h2>Enter Passenger Details</h2>
-
-    <div class="form-group">
-        <label>Full Name (First) *</label>
-        <input type="text" name="first_name" placeholder="First Name" required>
-    </div>
-    
-    <div class="form-group">
-        <label>Last Name *</label>
-        <input type="text" name="last_name" placeholder="Last Name" required>
-    </div>
-
-    <div class="form-group">
-        <label>Date of Birth *</label>
-        <input type="date" name="dob" required>
-    </div>
-
-    <div class="form-group">
-        <label>Passport / ID Number (SSN) *</label>
-        <input type="text" name="ssn" placeholder="e.g., A12345678" required>
-    </div>
-
-    <div class="form-group">
-        <label>Email Address *</label>
-        <input type="email" name="email" placeholder="your@email.com" required>
-    </div>
-
-    <div class="form-group">
-        <label>Phone Number *</label>
-        <input type="tel" name="phone" placeholder="+1 (555) 123-4567" required>
-    </div>
-
-    <button type="submit" class="btn btn-primary" style="width: 100%; padding: 1rem;">Continue to Booking</button>
-</form>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/animation.css') }}">
 </head>
 <body>
   <custom-navbar></custom-navbar>
 
   <main class="passenger-main">
     <div class="container">
-      <h1 style="margin-bottom: 0.5rem;">Step 2 of 4: Passenger Information</h1>
+      <h1 style="margin-bottom: 1.5rem; text-align: center;">Step 2: Passenger Details</h1>
       
-      <div class="passenger-intro">
-        <p>Please provide accurate passenger details matching your travel documents.</p>
+      <div class="passenger-intro" style="text-align: center; margin-bottom: 2rem;">
+        <p>Please enter the passenger information exactly as it appears on the ID card.</p>
       </div>
 
-      <div class="passenger-grid">
-        <!-- Form -->
-        <form class="card passenger-form">
-          <h2>Enter Passenger Details</h2>
+      <div class="passenger-grid" style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
+        
+        <form class="card passenger-form" action="{{ url_for('passenger_info') }}" method="POST" style="height: fit-content;">
+          <h2 style="border-bottom: 1px solid #eee; padding-bottom: 1rem; margin-bottom: 1.5rem;">Passenger Form</h2>
 
-          <div class="form-group">
-            <label>Full Name *</label>
-            <input type="text" placeholder="As it appears on your passport" required>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+                <label>First Name *</label>
+                <input type="text" name="first_name" placeholder="John" class="search-input" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Last Name *</label>
+                <input type="text" name="last_name" placeholder="Doe" class="search-input" required>
+            </div>
           </div>
 
           <div class="form-group">
-            <label>Date of Birth *</label>
-            <input type="date" required>
+              <label>Date of Birth *</label>
+              <input type="date" name="dob" class="search-input" required>
           </div>
 
           <div class="form-group">
-            <label>Passport / ID Number *</label>
-            <input type="text" placeholder="e.g., A12345678" required>
+              <label>Passport / ID Number (SSN) *</label>
+              <input type="text" name="ssn" placeholder="e.g., 12345678901" class="search-input" required>
           </div>
 
           <div class="form-group">
-            <label>Email Address *</label>
-            <input type="email" placeholder="your@email.com" required>
+              <label>Email Address *</label>
+              <input type="email" name="email" placeholder="john@example.com" class="search-input" required>
           </div>
 
           <div class="form-group">
-            <label>Phone Number *</label>
-            <input type="tel" placeholder="+1 (555) 123-4567" required>
+              <label>Phone Number *</label>
+              <input type="tel" name="phone" placeholder="+1 555 000 0000" class="search-input" required>
           </div>
 
-          <button type="button" class="btn btn-primary" style="width: 100%; padding: 1rem;" onclick="window.location.href='seat.html'">Continue to Seat Selection</button>
+          <button type="submit" class="btn btn-primary" style="width: 100%; padding: 1rem; margin-top: 1rem;">
+            Continue to Payment
+          </button>
         </form>
 
-        <!-- Summary -->
-        <div class="card passenger-summary">
-          <h2>Flight Itinerary</h2>
+        <div class="card passenger-summary" style="height: fit-content;">
+          <h2>Trip Summary</h2>
+          
+          {% if session.get('flight_details') %}
           <div class="itinerary-section">
-            <div class="itinerary-airports">
-              <div>JFK</div>
-              <div></div>
-              <div>LHR</div>
+            <div class="itinerary-airports" style="display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-size: 1.2rem;">
+              <span>IST</span>
+              <span style="color: var(--secondary);">✈</span>
+              <span>LHR</span>
             </div>
-            <p style="color: #666; margin: 0; font-size: 0.9rem;">New York → London</p>
+            <p style="color: #666; margin: 0.5rem 0; font-size: 0.9rem; text-align: center;">Direct Flight</p>
           </div>
-          <div style="margin-bottom: 1rem;">
-            <p class="itinerary-detail"><strong>Departure:</strong> Mon, 28 Oct 2024, 08:30 AM</p>
-            <p class="itinerary-detail"><strong>Duration:</strong> 10h 00m</p>
-            <p class="itinerary-detail"><strong>Aircraft:</strong> Boeing 777</p>
+          
+          <div style="margin-bottom: 1rem; font-size: 0.95rem;">
+            <p style="margin: 0.5rem 0;"><strong>Flight No:</strong> {{ session['flight_details']['no'] }}</p>
+            <p style="margin: 0.5rem 0;"><strong>Date:</strong> {{ session['flight_details']['dep'] }}</p>
+            <p style="margin: 0.5rem 0;"><strong>Gate:</strong> {{ session['flight_details']['gate'] }}</p>
+            <p style="margin: 0.5rem 0;"><strong>Model:</strong> {{ session['flight_details']['model'] }}</p>
           </div>
-          <div style="border-top: 2px solid var(--border); padding-top: 1rem;">
-            <div class="price-row" style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+          {% else %}
+          <p>No flight selected.</p>
+          {% endif %}
+
+          <div style="border-top: 2px solid #eee; padding-top: 1rem; margin-top: 1rem;">
+            <div class="price-row" style="display: flex; justify-content: space-between; align-items: center;">
               <span>Total Price</span>
-              <strong style="font-size: 1.2rem; color: var(--accent);">$1,635.50</strong>
+              <strong style="font-size: 1.5rem; color: var(--secondary);">$1,500.00</strong>
             </div>
           </div>
         </div>
+
       </div>
     </div>
   </main>
 
-  <custom-footer></custom-footer>
-
-  <script src="components/navbar.js"></script>
-  <script src="components/footer.js"></script>
-  <script src="js/script.js"></script>
+  <script src="{{ url_for('static', filename='js/components/navbar.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/components/footer.js') }}"></script>
 </body>
 </html>

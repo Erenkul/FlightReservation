@@ -30,24 +30,7 @@
         <p class="hero-subtitle">Experience Premium Travel with SkyVoyage Elite</p>
 
         <!-- Glassmorphism Search Card -->
-        <div class="search-card">
-          <form action="{{ url_for('index') }}" method="POST" class="search-card">
-    <div class="search-inputs">
-        <div class="input-group">
-            <input type="text" name="from_city" id="departure-input" placeholder="Departure City" class="search-input">
-        </div>
-
-        <div class="input-group">
-            <input type="text" name="to_city" id="arrival-input" placeholder="Arrival City" class="search-input">
-        </div>
-
-        <div class="input-group">
-            <input type="date" name="flight_date" id="date-input" class="search-input">
-        </div>
-        </div>
-
-    <button type="submit" class="search-button">Search Flights</button>
-</form>
+        <form action="/" method="POST" class="search-card">
           <!-- Trip Type Toggle -->
           <fieldset class="trip-toggle">
             <legend class="sr-only">Trip Type</legend>
@@ -68,7 +51,7 @@
                 <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
                 <circle cx="12" cy="10" r="3"></circle>
               </svg>
-              <input type="text" id="departure-input" placeholder="Departure City" class="search-input">
+              <input type="text" name="from_city" id="departure-input" placeholder="Departure City" class="search-input" required>
             </div>
 
             <div class="input-group">
@@ -76,7 +59,7 @@
                 <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
                 <circle cx="12" cy="10" r="3"></circle>
               </svg>
-              <input type="text" id="arrival-input" placeholder="Arrival City" class="search-input">
+              <input type="text" name="to_city" id="arrival-input" placeholder="Arrival City" class="search-input" required>
             </div>
 
             <div class="input-group">
@@ -86,7 +69,7 @@
                 <line x1="8" y1="2" x2="8" y2="6"></line>
                 <line x1="3" y1="10" x2="21" y2="10"></line>
               </svg>
-              <input type="date" id="date-input" class="search-input">
+              <input type="date" name="flight_date" id="date-input" class="search-input">
             </div>
 
             <div class="input-group">
@@ -96,7 +79,7 @@
                 <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
                 <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
               </svg>
-              <select id="passengers-input" class="search-input">
+              <select id="passengers-input" name="passengers" class="search-input">
                 <option value="1">1 Passenger</option>
                 <option value="2">2 Passengers</option>
                 <option value="3">3 Passengers</option>
@@ -107,8 +90,8 @@
           </div>
 
           <!-- Search Button -->
-          <button class="search-button" onclick="navigateToSearch()">Search Flights</button>
-        </div>
+          <button type="submit" class="search-button">Search Flights</button>
+        </form>
 
         <!-- Features Grid -->
         <div class="features-grid">
