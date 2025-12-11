@@ -4,8 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Reports - SkyVoyage Elite</title>
-  <link rel="stylesheet" href="/css/style.css">
-  <link rel="stylesheet" href="/css/animation.css">
+  
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/animation.css') }}">
 </head>
 <body>
   <custom-navbar></custom-navbar>
@@ -31,55 +32,7 @@
               {% if data.top_flights %}
                 {% for row in data.top_flights %}
                   <tr>
-                    <td>{{ row[0] }}</td>
-                    <td>{{ row[1] }}</td>
-                    <td>{{ row[2] }}</td>
-                    <td>{{ row[3] }}</td>
-                  </tr>
-                {% endfor %}
-              {% else %}
-                <tr><td colspan="4" style="text-align:center;">No data</td></tr>
-              {% endif %}
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      <!-- Capacity over average -->
-      <section class="card" style="margin-bottom: 1.5rem;">
-        <h2 style="margin-bottom: 0.75rem;">Flights with Capacity Above Average</h2>
-        <div class="table-responsive">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Flight No</th>
-                <th>Model</th>
-                <th>Capacity</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% if data.capacity_over_avg %}
-                {% for row in data.capacity_over_avg %}
-                  <tr>
-                    <td>{{ row[0] }}</td>
-                    <td>{{ row[1] }}</td>
-                    <td>{{ row[2] }}</td>
-                  </tr>
-                {% endfor %}
-              {% else %}
-                <tr><td colspan="3" style="text-align:center;">No data</td></tr>
-              {% endif %}
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      <!-- Bags by gate -->
-      <section class="card" style="margin-bottom: 1.5rem;">
-        <h2 style="margin-bottom: 0.75rem;">Total Baggage by Gate</h2>
-        <div class="table-responsive">
-          <table class="data-table">
-            <thead>
+@@ -83,30 +83,30 @@
               <tr>
                 <th>Gate</th>
                 <th>Total Bags</th>
@@ -105,8 +58,8 @@
 
   <custom-footer></custom-footer>
 
-  <script src="/components/navbar.js"></script>
-  <script src="/components/footer.js"></script>
+ 
+  <script src="{{ url_for('static', filename='js/components/navbar.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/components/footer.js') }}"></script>
 </body>
 </html>
-

@@ -1,0 +1,15 @@
+# Python cache files
+__pycache__/
+*.pyc
+
+# Node dependencies
+node_modules/
+
+# Python virtual environment
+.venv/
+
+# Environment variables
+.env
+
+# VS Code workspace files
+.vscode/

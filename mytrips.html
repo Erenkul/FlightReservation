@@ -4,71 +4,98 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>My Trips - SkyVoyage Elite</title>
-  <link rel="stylesheet" href="/css/style.css">
-  <link rel="stylesheet" href="/css/animation.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/animation.css') }}">
 </head>
 <body>
   <custom-navbar></custom-navbar>
 
-  <main class="mytrips-main">
-    <div class="container">
-      <h1 style="margin-bottom: 0.5rem;">My Trips</h1>
-      
-      <div class="mytrips-intro">
-        <p>View your upcoming and past flight reservations</p>
+  <main class="page-shell">
+    <section class="page-hero">
+      <div class="container hero-grid">
+        <div>
+          <p class="eyebrow">Your journeys</p>
+          <h1>Manage bookings</h1>
+          <p class="muted">Review seats, baggage, and prices for each reservation. Update details instantly or cancel with a single tap.</p>
+        </div>
+        <div class="stats-row">
+          <div class="stat-card">
+            <p class="label">Upcoming trips</p>
+            <h2>{{ trips|length if trips else 0 }}</h2>
+          </div>
+          <div class="stat-card">
+            <p class="label">Last update</p>
+            <p class="value">{{ (trips[0][0].strftime('%d %b %Y') if trips and trips[0][0] else '—') if trips else '—' }}</p>
+          </div>
+        </div>
       </div>
+    </section>
 
-      <!-- Tabs -->
+    <section class="container">
       <div class="trip-cards" id="tripCardsContainer">
         {% if trips %}
           {% for trip in trips %}
-            <div class="card trip-card">
-              <div class="trip-header">
-                <span class="trip-badge">Confirmed</span>
-                <span class="trip-flight-code">Flight #{{ trip[1] }}</span>
-              </div>
-              <div class="trip-route">
-                <div class="trip-airports">
-                  <div>Gate: {{ trip[3] }}</div>
-                  <div>✈</div>
-                  <div>Model: {{ trip[4] }}</div>
+            <article class="card trip-card">
+              <header class="trip-header">
+                <div>
+                  <span class="pill pill-soft">Confirmed</span>
+                  <p class="muted" style="margin-top: 0.35rem;">Booked {{ trip[0].strftime('%d %b %Y %H:%M') if trip[0] else '—' }}</p>
+                </div>
+                <div class="trip-flight-code">Flight #{{ trip[1] }}</div>
+              </header>
+
+              <div class="trip-body">
+                <div>
+                  <p class="label">Gate</p>
+                  <p class="value">{{ trip[3] }}</p>
+                </div>
+                <div>
+                  <p class="label">Aircraft</p>
+                  <p class="value">{{ trip[4] }}</p>
+                </div>
+                <div>
+                  <p class="label">Seat</p>
+                  <p class="value">{{ trip[5] or '—' }}</p>
+                </div>
+                <div>
+                  <p class="label">Price</p>
+                  <p class="value">${{ '%.2f'|format(trip[6]) if trip[6] is not none else '—' }}</p>
                 </div>
               </div>
-            <div class="trip-footer">
-                <p class="trip-detail"><strong>Booking Date:</strong> {{ trip[0] }}</p>
-                <p class="trip-detail"><strong>Seat:</strong> {{ trip[5] }}</p>
-                <p class="trip-detail"><strong>Price:</strong> ${{ trip[6] }}</p>
-                <div class="trip-actions">
-                  <form method="POST" action="/booking/update" style="display:flex; gap:0.5rem; flex-wrap:wrap; width:100%;">
-                    <input type="hidden" name="flight_no" value="{{ trip[1] }}">
-                    <input type="hidden" name="booking_date" value="{{ trip[0].strftime('%Y-%m-%d %H:%M:%S') if trip[0] else '' }}">
-                    <input type="text" name="seat_no" placeholder="New Seat" class="search-input" style="flex:1; min-width:140px;">
-                    <input type="number" step="0.01" name="ticket_price" placeholder="Price" class="search-input" style="flex:1; min-width:120px;">
-                    <input type="number" name="baggage_count" placeholder="Bags" class="search-input" style="flex:1; min-width:100px;">
-                    <button class="btn btn-outline" type="submit" style="flex:1; min-width:120px;">Update</button>
-                  </form>
-                  <form method="POST" action="/booking/delete" style="width:100%; margin-top:0.5rem;">
-                    <input type="hidden" name="flight_no" value="{{ trip[1] }}">
-                    <input type="hidden" name="booking_date" value="{{ trip[0].strftime('%Y-%m-%d %H:%M:%S') if trip[0] else '' }}">
-                    <button class="btn btn-danger" type="submit" style="width:100%;">Delete</button>
-                  </form>
-                </div>
+
+              <div class="trip-actions">
+                <form method="POST" action="/booking/update" class="inline-form">
+                  <input type="hidden" name="flight_no" value="{{ trip[1] }}">
+                  <input type="hidden" name="booking_date" value="{{ trip[0].strftime('%Y-%m-%d %H:%M:%S') if trip[0] else '' }}">
+                  <input type="text" name="seat_no" placeholder="New seat" class="search-input">
+                  <input type="number" step="0.01" name="ticket_price" placeholder="Price" class="search-input">
+                  <input type="number" name="baggage_count" placeholder="Bags" class="search-input">
+                  <button class="btn btn-outline" type="submit">Update</button>
+                </form>
+                <form method="POST" action="/booking/delete">
+                  <input type="hidden" name="flight_no" value="{{ trip[1] }}">
+                  <input type="hidden" name="booking_date" value="{{ trip[0].strftime('%Y-%m-%d %H:%M:%S') if trip[0] else '' }}">
+                  <button class="btn btn-danger" type="submit">Delete booking</button>
+                </form>
               </div>
-            </div>
+            </article>
           {% endfor %}
         {% else %}
           <div class="card empty-state">
-            <h3>Henüz biletiniz yok.</h3>
+            <p class="eyebrow">No bookings yet</p>
+            <h2>Start exploring flights</h2>
+            <p class="muted">Search routes and create your first reservation to see it here.</p>
+            <a class="btn btn-primary" href="/">Search flights</a>
           </div>
         {% endif %}
       </div>
-    </div>
+    </section>
   </main>
 
   <custom-footer></custom-footer>
 
-  <script src="/components/navbar.js"></script>
-  <script src="/components/footer.js"></script>
-  <script src="/js/script.js"></script>
+  <script src="{{ url_for('static', filename='components/navbar.js') }}"></script>
+  <script src="{{ url_for('static', filename='components/footer.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
 </html>

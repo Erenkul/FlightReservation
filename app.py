@@ -14,7 +14,8 @@ from datetime import datetime
 import logging
 
 # Serve templates and static files from the project root (keeps current structure intact)
-app = Flask(__name__, static_folder=".", template_folder=".")
+# static_url_path="" lets asset references like /css/style.css resolve without /static prefix
+app = Flask(__name__, static_folder=".", template_folder=".", static_url_path="")
 app.secret_key = "skyvoyage_secret_key"
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
