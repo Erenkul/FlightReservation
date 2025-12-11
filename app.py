@@ -12,11 +12,12 @@ from db import get_connection
 import cx_Oracle
 from datetime import datetime
 import logging
+import os
+from decimal import Decimal
 
-# Serve templates and static files from the project root (keeps current structure intact)
-# static_url_path="" lets asset references like /css/style.css resolve without /static prefix
-# Bu satır, HTML'leri otomatik olarak 'templates', CSS/JS'leri 'static' klasöründe arar.
+
 app = Flask(__name__)
+app.secret_key = os.environ.get("FLASK_SECRET_KEY", "skyvoyage-secret-key")
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
@@ -29,7 +30,7 @@ except Exception as e:
 # --- Static aliases for component files (keeps existing folder names) ---
 @app.route("/static/js/components/<path:filename>")
 def serve_components(filename):
-    return send_from_directory("components", filename)
+    return send_from_directory("static/components", filename)
 
 
 # --- Helpers -----------------------------------------------------------------
@@ -51,7 +52,7 @@ def fetch_flights(from_city=None, to_city=None, flight_date=None):
                    f.landingTime
             FROM Flight f
             JOIN Airplane a ON f.fregNo = a.regNo
-            WHERE f.departureTime >= SYSDATE
+            WHERE 1=1
         """
 
         params = []
@@ -82,6 +83,119 @@ def fetch_flights(from_city=None, to_city=None, flight_date=None):
             conn.close()
         except Exception:
             pass
+
+
+def format_flights(rows):
+    """
+    Convert DB rows into dictionaries so Jinja can render them easily.
+    """
+    formatted = []
+    for row in rows or []:
+        formatted.append(
+            {
+                "flight": row[0],
+                "depart_time": row[1].strftime("%Y-%m-%d %H:%M") if row[1] else "TBD",
+                "arrival_time": row[4].strftime("%Y-%m-%d %H:%M") if len(row) > 4 and row[4] else "TBD",
+                "gate": row[2],
+                "aircraft": row[3],
+                "price": 1500,
+            }
+        )
+    return formatted
+
+
+def fallback_flights():
+    """
+    Static flights for demo/boş sonuçlar.
+    """
+    return [
+        {
+            "flight": "1001",
+            "depart_time": "2025-01-10 08:00",
+            "arrival_time": "2025-01-10 12:00",
+            "gate": "A10",
+            "aircraft": "Boeing 737-800",
+            "price": 1200,
+        },
+        {
+            "flight": "1002",
+            "depart_time": "2025-01-10 14:00",
+            "arrival_time": "2025-01-10 18:00",
+            "gate": "B20",
+            "aircraft": "Airbus A320",
+            "price": 1200,
+        },
+        {
+            "flight": "2001",
+            "depart_time": "2025-01-11 09:00",
+            "arrival_time": "2025-01-11 15:00",
+            "gate": "C30",
+            "aircraft": "Airbus A330",
+            "price": 3200,
+        },
+    ]
+
+
+# 1. ANA SAYFA VE ARAMA
+@app.route("/", methods=["GET", "POST"])
+def index():
+    if request.method == "POST":
+        from_city = request.form.get("from_city")
+        to_city = request.form.get("to_city")
+        flight_date = request.form.get("flight_date")
+
+        flights, err = fetch_flights(from_city, to_city, flight_date)
+        if err:
+            flash(err, "error")
+            return render_template("index.html")
+
+        formatted = format_flights(flights)
+        if not formatted:
+            flash("Uçuş bulunamadı, örnek sonuçlar gösteriliyor.", "error")
+            formatted = fallback_flights()
+
+        session["search_results"] = formatted
+        session["search_meta"] = {
+            "from_city": from_city or "Any",
+            "to_city": to_city or "Any",
+            "flight_date": flight_date or "Flexible",
+        }
+        return redirect(url_for("search_result"))
+
+    return render_template("index.html")
+
+
+@app.route("/search_result")
+def search_result():
+    flights = session.get("search_results") or fallback_flights()
+    search_meta = session.get("search_meta") or {}
+    return render_template("search_result.html", flights=flights, search_meta=search_meta)
+
+
+@app.route("/select_flight", methods=["POST"])
+def select_flight():
+    flight_no = request.form.get("flight_no")
+    depart_time = request.form.get("depart_time")
+    arrival_time = request.form.get("arrival_time")
+    gate = request.form.get("gate")
+    aircraft = request.form.get("aircraft")
+    price = request.form.get("price", type=float)
+
+    if not flight_no:
+        flash("Uçuş seçimi yapılamadı.", "error")
+        return redirect(url_for("search_result"))
+
+    session["selected_flight"] = flight_no
+    session["flight_details"] = {
+        "no": flight_no,
+        "dep": depart_time or "TBD",
+        "arr": arrival_time or "TBD",
+        "gate": gate or "—",
+        "model": aircraft or "—",
+        "price": price or 1500,
+    }
+    return redirect(url_for("passenger_info"))
+
 
 # --- CRUD helpers for Booking -------------------------------------------------
 def delete_booking(conn, flight_no, ssn, booking_date):
@@ -151,41 +265,12 @@ def update_booking(conn, flight_no, ssn, booking_date, seat_no=None, ticket_pric
         except Exception:
             pass
 
-# 1. ANA SAYFA VE ARAMA
-@app.route("/", methods=["GET", "POST"])
-def index():
-    if request.method == "POST":
-        from_city = request.form.get("from_city")
-        to_city = request.form.get("to_city")
-        flight_date = request.form.get("flight_date")
-
-        flights, err = fetch_flights(from_city, to_city, flight_date)
-        if err:
-            flash(err, "error")
-            return render_template("index.html")
-
-        if flights:
-            first = flights[0]
-            session["selected_flight"] = first[0]
-            session["flight_details"] = {
-                "no": first[0],
-                "dep": first[1].strftime("%Y-%m-%d %H:%M") if first[1] else "TBD",
-                "arr": first[4].strftime("%Y-%m-%d %H:%M") if len(first) > 4 and first[4] else "TBD",
-                "gate": first[2],
-                "model": first[3],
-            }
-            return redirect(url_for("passenger_info"))
-        else:
-            flash("Uçuş bulunamadı!", "error")
-
-    return render_template("index.html")
-# app.py
-
-# ... (Mevcut importlar ve tanımlar)
-
 # 2. YOLCU BİLGİLERİ GİRİŞİ (GÜNCELLENDİ)
 @app.route("/passenger_info", methods=["GET", "POST"])
 def passenger_info():
+    if not session.get("selected_flight"):
+        return redirect(url_for("search_result"))
+
     if request.method == "POST":
         session["passenger"] = {
             "ssn": request.form["ssn"],
@@ -204,16 +289,40 @@ def passenger_info():
 # YENİ ROTA: KOLTUK SEÇİMİ
 @app.route("/seat_selection", methods=["GET", "POST"])
 def seat_selection():
+    if not session.get("selected_flight"):
+        return redirect(url_for("search_result"))
+
+    if not session.get("passenger"):
+        return redirect(url_for("passenger_info"))
+
+    flight_id = session.get("selected_flight")
+    
+    # DB'den rezerve koltukları çek
+    reserved_seats = []
+    conn = get_connection()
+    if conn:
+        try:
+            cursor = conn.cursor()
+            sql = "SELECT seatNo FROM Booking WHERE fNo = :1 AND seatNo IS NOT NULL"
+            cursor.execute(sql, (flight_id,))
+            reserved_seats = [row[0] for row in cursor.fetchall()]
+            cursor.close()
+            conn.close()
+        except Exception:
+            pass
+
     if request.method == "POST":
-        # Formdan gelen koltuk bilgisini al
+        # Formdan gelen koltuk ve sınıf bilgisini al
         seat_no = request.form.get("selected_seat")
+        class_type = request.form.get("class_type", "Economy")  # Economy veya Business
         if seat_no:
             session["selected_seat"] = seat_no
+            session["class_type"] = class_type
             return redirect(url_for("confirm_booking"))
         else:
             flash("Lütfen bir koltuk seçin.", "error")
             
-    return render_template("seat.html")
+    return render_template("seat.html", reserved_seats=reserved_seats)
 
 # 3. REZERVASYON ONAY (GÜNCELLENDİ)
 @app.route("/confirm_booking", methods=["GET", "POST"])
@@ -222,10 +331,12 @@ def confirm_booking():
     flight_data = session.get("flight_details")
     passenger = session.get("passenger")
     # DEĞİŞİKLİK: Session'dan seçilen koltuğu al, yoksa varsayılan ata
-    selected_seat = session.get("selected_seat", "TBD")
+    selected_seat = session.get("selected_seat")
 
     if not flight_id or not passenger:
         return redirect(url_for("index"))
+    if request.method == "GET" and not selected_seat:
+        return redirect(url_for("seat_selection"))
 
     if request.method == "POST":
         conn = get_connection()
@@ -267,17 +378,35 @@ def confirm_booking():
             """
             cursor.execute(
                 ins_book,
-                (flight_id, passenger["ssn"], booking_date, selected_seat, 1500, 1),
+                (
+                    flight_id,
+                    passenger["ssn"],
+                    booking_date,
+                    selected_seat,
+                    flight_data.get("price", 1500) if flight_data else 1500,
+                    1,
+                ),
             )
 
-            # EconomyClass Tablosuna ekle
-            ins_eco = "INSERT INTO EconomyClass (EflightNo, ESSN, EbookingDate) VALUES (:1, :2, :3)"
-            cursor.execute(ins_eco, (flight_id, passenger["ssn"], booking_date))
+            # Sınıf tipine göre EconomyClass veya BusinessClass'a ekle
+            class_type = session.get("class_type", "Economy")
+            if class_type == "Business":
+                ins_business = "INSERT INTO BusinessClass (BflightNo, BSSN, BbookingDate) VALUES (:1, :2, :3)"
+                cursor.execute(ins_business, (flight_id, passenger["ssn"], booking_date))
+            else:
+                ins_eco = "INSERT INTO EconomyClass (EflightNo, ESSN, EbookingDate) VALUES (:1, :2, :3)"
+                cursor.execute(ins_eco, (flight_id, passenger["ssn"], booking_date))
 
             conn.commit()
             
             pnr_code = f"PNR{flight_id}{passenger['ssn'][-4:]}"
-            return render_template("confirmation.html", pnr=pnr_code)
+            return render_template(
+                "confirmation.html",
+                pnr=pnr_code,
+                passenger=passenger,
+                flight=flight_data,
+                seat=selected_seat,
+            )
 
         except cx_Oracle.Error as e:
             conn.rollback()
@@ -291,14 +420,10 @@ def confirm_booking():
                 pass
 
     # GET isteği için sayfayı render et
-    return render_template("booking.html", passenger=passenger, flight=flight_data, seat=selected_seat)
-# 4. BİLETLERİM
+    return render_template("booking.html", passenger=passenger, flight=flight_data, seat=selected_seat or "TBD")
+# 4. BİLETLERİM (Login gerektirmiyor, tüm booking'leri gösterir)
 @app.route("/mytrips")
 def mytrips():
-    passenger = session.get("passenger")
-    if not passenger:
-        return render_template("mytrips.html", trips=[])
-
     conn = get_connection()
     if not conn:
         flash("Veritabanı bağlantısı kurulamadı!", "error")
@@ -312,14 +437,17 @@ def mytrips():
                f.gateNo,
                a.modelNo,
                b.seatNo,
-               b.ticketPrice
+               b.ticketPrice,
+               p.firstName,
+               p.lastName,
+               b.bSSN
         FROM Booking b
         JOIN Flight f ON b.fNo = f.flightNo
         JOIN Airplane a ON f.fregNo = a.regNo
-        WHERE b.bSSN = :1
+        JOIN Passenger p ON b.bSSN = p.SSN
         ORDER BY b.bookingDate DESC
     """
-    cursor.execute(sql, (passenger["ssn"],))
+    cursor.execute(sql)
     trips = cursor.fetchall()
 
     try:
@@ -331,20 +459,15 @@ def mytrips():
     return render_template("mytrips.html", trips=trips)
 
 
-# 5. Booking Delete
+# 5. Booking Delete (Login gerektirmiyor)
 @app.route("/booking/delete", methods=["POST"])
 def booking_delete():
-    passenger = session.get("passenger")
-    if not passenger:
-        flash("Oturum bulunamadı.", "error")
-        return redirect(url_for("index"))
-
     flight_no = request.form.get("flight_no")
     booking_date_raw = request.form.get("booking_date")
-    ssn = passenger.get("ssn")
+    ssn = request.form.get("ssn")  # Formdan alınacak
 
     if not (flight_no and booking_date_raw and ssn):
-        flash("Eksik bilgi: flight_no veya booking_date.", "error")
+        flash("Eksik bilgi: flight_no, booking_date veya ssn.", "error")
         return redirect(url_for("mytrips"))
 
     try:
@@ -371,17 +494,12 @@ def booking_delete():
     return redirect(url_for("mytrips"))
 
 
-# 6. Booking Update (seat, price, baggage)
+# 6. Booking Update (seat, price, baggage) - Login gerektirmiyor
 @app.route("/booking/update", methods=["POST"])
 def booking_update():
-    passenger = session.get("passenger")
-    if not passenger:
-        flash("Oturum bulunamadı.", "error")
-        return redirect(url_for("index"))
-
     flight_no = request.form.get("flight_no")
     booking_date_raw = request.form.get("booking_date")
-    ssn = passenger.get("ssn")
+    ssn = request.form.get("ssn")  # Formdan alınacak
     seat_no = request.form.get("seat_no") or None
     price_raw = request.form.get("ticket_price")
     baggage_raw = request.form.get("baggage_count")
@@ -390,7 +508,7 @@ def booking_update():
     baggage_count = int(baggage_raw) if baggage_raw else None
 
     if not (flight_no and booking_date_raw and ssn):
-        flash("Eksik bilgi: flight_no veya booking_date.", "error")
+        flash("Eksik bilgi: flight_no, booking_date veya ssn.", "error")
         return redirect(url_for("mytrips"))
 
     try:
@@ -415,6 +533,101 @@ def booking_update():
     else:
         flash("Rezervasyon güncellendi.", "success")
     return redirect(url_for("mytrips"))
+
+
+@app.route("/manage_bookings", methods=["GET", "POST"])
+def manage_bookings():
+    """
+    Login gerekmeden tüm Booking kayıtlarını listeleyen basit yönetim ekranı.
+    Insert / Update / Delete yapılabilir.
+    """
+    if request.method == "POST":
+        action = request.form.get("action")
+        conn = get_connection()
+        if not conn:
+            flash("Veritabanı bağlantısı kurulamadı!", "error")
+            return redirect(url_for("manage_bookings"))
+        try:
+            cursor = conn.cursor()
+            if action == "insert":
+                fno = request.form.get("flight_no")
+                ssn = request.form.get("ssn")
+                seat_no = request.form.get("seat_no") or None
+                price_raw = request.form.get("ticket_price")
+                baggage_raw = request.form.get("baggage_count")
+                booking_date_raw = request.form.get("booking_date")
+                booking_date = datetime.fromisoformat(booking_date_raw) if booking_date_raw else datetime.now()
+                ticket_price = Decimal(price_raw) if price_raw else None
+                baggage = int(baggage_raw) if baggage_raw else None
+                if not (fno and ssn):
+                    flash("flight_no ve ssn zorunlu.", "error")
+                else:
+                    cursor.execute(
+                        """
+                        INSERT INTO Booking (fNo, bSSN, bookingDate, seatNo, ticketPrice, baggageCount)
+                        VALUES (:1, :2, :3, :4, :5, :6)
+                        """,
+                        (fno, ssn, booking_date, seat_no, ticket_price, baggage),
+                    )
+                    cursor.execute(
+                        "INSERT INTO EconomyClass (EflightNo, ESSN, EbookingDate) VALUES (:1, :2, :3)",
+                        (fno, ssn, booking_date),
+                    )
+                    conn.commit()
+                    flash("Booking eklendi.", "success")
+            elif action == "update":
+                fno = request.form.get("flight_no")
+                ssn = request.form.get("ssn")
+                booking_date_raw = request.form.get("booking_date")
+                seat_no = request.form.get("seat_no") or None
+                price_raw = request.form.get("ticket_price")
+                baggage_raw = request.form.get("baggage_count")
+                if not (fno and ssn and booking_date_raw):
+                    flash("flight_no, ssn, booking_date zorunlu.", "error")
+                else:
+                    booking_date = datetime.fromisoformat(booking_date_raw)
+                    err = update_booking(
+                        conn,
+                        fno,
+                        ssn,
+                        booking_date,
+                        seat_no,
+                        float(price_raw) if price_raw else None,
+                        int(baggage_raw) if baggage_raw else None,
+                    )
+                    if err:
+                        flash(f"Güncelleme hatası: {err}", "error")
+                    else:
+                        flash("Booking güncellendi.", "success")
+            elif action == "delete":
+                fno = request.form.get("flight_no")
+                ssn = request.form.get("ssn")
+                booking_date_raw = request.form.get("booking_date")
+                if not (fno and ssn and booking_date_raw):
+                    flash("flight_no, ssn, booking_date zorunlu.", "error")
+                else:
+                    booking_date = datetime.fromisoformat(booking_date_raw)
+                    err = delete_booking(conn, fno, ssn, booking_date)
+                    if err:
+                        flash(f"Silme hatası: {err}", "error")
+                    else:
+                        flash("Booking silindi.", "success")
+            try:
+                cursor.close()
+                conn.close()
+            except Exception:
+                pass
+        except Exception as e:
+            flash(f"İşlem hatası: {e}", "error")
+            try:
+                conn.rollback()
+            except Exception:
+                pass
+    bookings, err = fetch_all_bookings()
+    if err:
+        flash(err, "error")
+        bookings = []
+    return render_template("manage_bookings.html", bookings=bookings)
 
 
 # 7. Raporlar (JOIN / GROUP BY / SUBQUERY örnekleri)
@@ -483,6 +696,43 @@ def fetch_reports():
             pass
 
     return data, err
+
+
+def fetch_all_bookings():
+    """
+    Yönetim ekranı için tüm booking kayıtlarını getirir.
+    """
+    conn = get_connection()
+    if not conn:
+        return [], "Veritabanı bağlantısı kurulamadı!"
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            """
+            SELECT b.bookingDate,
+                   f.flightNo,
+                   f.departureTime,
+                   f.gateNo,
+                   a.modelNo,
+                   b.seatNo,
+                   b.ticketPrice,
+                   b.bSSN
+            FROM Booking b
+            JOIN Flight f ON b.fNo = f.flightNo
+            JOIN Airplane a ON f.fregNo = a.regNo
+            ORDER BY b.bookingDate DESC
+            """
+        )
+        rows = cur.fetchall()
+        return rows, None
+    except cx_Oracle.Error as e:
+        return [], f"Sorgu hatası: {e}"
+    finally:
+        try:
+            cur.close()
+            conn.close()
+        except Exception:
+            pass
 
 
 @app.route("/reports")
@@ -594,3 +844,4 @@ def logout():
 
 if __name__ == "__main__":
     app.run(debug=True)
+    app.secret_key = "enbuyukgs"

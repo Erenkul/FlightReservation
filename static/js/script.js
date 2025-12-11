@@ -43,7 +43,7 @@ function generateDummyFlights() {
 
 function navigateToSearch() {
   sessionStorage.setItem("flights", JSON.stringify(generateDummyFlights()))
-  window.location.href = "search_result.html"
+  window.location.href = "/search_result"
 }
 
 // Smooth scroll behavior

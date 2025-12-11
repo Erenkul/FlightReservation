@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Bookings - SkyVoyage Elite</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/animation.css') }}">
+</head>
+<body>
+  <custom-navbar></custom-navbar>
+
+  <main class="page-shell">
+    <section class="container">
+      <h1 style="margin-bottom: 1rem;">Manage Bookings (Login Gerekmiyor)</h1>
+      <p class="muted" style="margin-bottom: 1.5rem;">Insert / Update / Delete işlemleri için formu kullanın.</p>
+
+      <div class="card" style="margin-bottom: 1.5rem;">
+        <h2 style="margin-bottom: 0.75rem;">Insert / Update / Delete</h2>
+        <form class="form-grid" action="{{ url_for('manage_bookings') }}" method="POST">
+          <div class="form-group">
+            <label>Action</label>
+            <select name="action" class="search-input" required>
+              <option value="insert">Insert</option>
+              <option value="update">Update</option>
+              <option value="delete">Delete</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Flight No *</label>
+            <input type="text" name="flight_no" class="search-input" placeholder="e.g., 1001">
+          </div>
+          <div class="form-group">
+            <label>Passenger SSN *</label>
+            <input type="text" name="ssn" class="search-input" placeholder="Kimlik/SSN">
+          </div>
+          <div class="form-group">
+            <label>Booking Date (ISO) *</label>
+            <input type="text" name="booking_date" class="search-input" placeholder="2025-01-10T08:00:00">
+          </div>
+          <div class="form-group">
+            <label>Seat No</label>
+            <input type="text" name="seat_no" class="search-input" placeholder="12A">
+          </div>
+          <div class="form-group">
+            <label>Ticket Price</label>
+            <input type="number" step="0.01" name="ticket_price" class="search-input" placeholder="1200">
+          </div>
+          <div class="form-group">
+            <label>Baggage Count</label>
+            <input type="number" name="baggage_count" class="search-input" placeholder="1">
+          </div>
+          <div style="grid-column: 1 / -1;">
+            <button type="submit" class="btn btn-primary" style="width: 100%;">Gönder</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="card">
+        <h2 style="margin-bottom: 0.75rem;">Existing Bookings</h2>
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Booking Date</th>
+                <th>Flight</th>
+                <th>Gate</th>
+                <th>Departure</th>
+                <th>Model</th>
+                <th>Seat</th>
+                <th>Price</th>
+                <th>SSN</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% if bookings %}
+                {% for row in bookings %}
+                  <tr>
+                    <td>{{ row[0] }}</td>
+                    <td>{{ row[1] }}</td>
+                    <td>{{ row[3] }}</td>
+                    <td>{{ row[2] }}</td>
+                    <td>{{ row[4] }}</td>
+                    <td>{{ row[5] or '-' }}</td>
+                    <td>{{ row[6] or '-' }}</td>
+                    <td>{{ row[7] }}</td>
+                  </tr>
+                {% endfor %}
+              {% else %}
+                <tr><td colspan="8" style="text-align:center;">No data</td></tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <custom-footer></custom-footer>
+
+  <script src="{{ url_for('static', filename='components/navbar.js') }}"></script>
+  <script src="{{ url_for('static', filename='components/footer.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
+

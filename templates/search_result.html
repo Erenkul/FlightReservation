@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Search Results - SkyVoyage Elite</title>
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/animation.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/animation.css') }}">
 </head>
 <body>
   <custom-navbar></custom-navbar>
@@ -14,22 +14,56 @@
     <div class="container">
       <div class="search-header">
         <h1>Search Results</h1>
-        <p id="search-details">New York (JFK) → London (LHR) • Round Trip • 2 Adults</p>
-      </div>
-
-      <div class="card search-filters">
-        <select>
-          <option>Sort by: Lowest Price</option>
-          <option>Earliest Departure</option>
-          <option>Shortest Duration</option>
-        </select>
-        <button class="btn btn-outline">Stops</button>
-        <button class="btn btn-outline">Airlines</button>
-        <button class="btn btn-outline">Time</button>
+        <p id="search-details">
+          {{ (search_meta.from_city ~ ' → ' ~ search_meta.to_city) if search_meta else 'Route' }}
+          • {{ search_meta.flight_date if search_meta and search_meta.flight_date else 'Flexible Date' }}
+        </p>
       </div>
 
       <div class="flight-results" id="flight-results">
-        <!-- Flights will be rendered here by JS -->
+        {% if flights %}
+          {% for flight in flights %}
+            <form class="card flight-card" method="POST" action="{{ url_for('select_flight') }}">
+              <input type="hidden" name="flight_no" value="{{ flight.flight }}">
+              <input type="hidden" name="depart_time" value="{{ flight.depart_time }}">
+              <input type="hidden" name="arrival_time" value="{{ flight.arrival_time }}">
+              <input type="hidden" name="gate" value="{{ flight.gate }}">
+              <input type="hidden" name="aircraft" value="{{ flight.aircraft }}">
+              <input type="hidden" name="price" value="{{ flight.price }}">
+
+              <div class="flight-info">
+                <div class="flight-time-block">
+                  <div class="flight-time">{{ flight.depart_time }}</div>
+                  <div class="flight-route">
+                    <div class="flight-route-airports">{{ flight.flight }}</div>
+                    <div class="flight-route-line">
+                      <div></div>
+                      <span>→</span>
+                      <div></div>
+                    </div>
+                    <div class="flight-duration">Gate {{ flight.gate }}</div>
+                  </div>
+                  <div style="text-align: right;">
+                    <div class="flight-time">{{ flight.arrival_time }}</div>
+                    <div class="flight-route-airports">{{ flight.aircraft }}</div>
+                  </div>
+                </div>
+                <p class="flight-description">Operated by SkyVoyage Elite</p>
+              </div>
+              <div class="flight-price-block">
+                <div class="flight-price">${{ '%.2f'|format(flight.price) }}</div>
+                <p class="flight-price-label">per passenger</p>
+                <button class="btn btn-primary" type="submit">Select</button>
+              </div>
+            </form>
+          {% endfor %}
+        {% else %}
+          <div class="card empty-state">
+            <p class="eyebrow">No flights found</p>
+            <h2>Try a different search</h2>
+            <a class="btn btn-primary" href="{{ url_for('index') }}">Back to search</a>
+          </div>
+        {% endif %}
       </div>
     </div>
   </main>
@@ -45,98 +79,8 @@
     </svg>
   </button>
 
-  <script src="components/navbar.js"></script>
-  <script src="components/footer.js"></script>
-  <script src="js/script.js"></script>
-  <script>
-    function renderFlights(flights) {
-      const resultsContainer = document.getElementById('flight-results');
-      resultsContainer.innerHTML = '';
-      
-      flights.forEach(flight => {
-        const flightCard = document.createElement('div');
-        flightCard.className = 'card flight-card';
-        flightCard.innerHTML = `
-          <div class="flight-info">
-            <div class="flight-time-block">
-              <div class="flight-time">${flight.departTime}</div>
-              <div class="flight-route">
-                <div class="flight-route-airports">${flight.from}</div>
-                <div class="flight-route-line">
-                  <div></div>
-                  <span>→</span>
-                  <div></div>
-                </div>
-                <div class="flight-duration">${flight.duration}</div>
-              </div>
-              <div style="text-align: right;">
-                <div class="flight-time">${flight.arrivalTime}</div>
-                <div class="flight-route-airports">${flight.to}</div>
-              </div>
-            </div>
-            <p class="flight-description">${flight.stops} • ${flight.airline} • ${flight.aircraft}</p>
-          </div>
-          <div class="flight-price-block">
-            <div class="flight-price">$${flight.price}</div>
-            <p class="flight-price-label">per passenger</p>
-            <button class="btn btn-primary" onclick="selectFlight('${flight.flight}', ${flight.price})">Select</button>
-          </div>
-        `;
-        resultsContainer.appendChild(flightCard);
-      });
-    }
-    
-    function selectFlight(flightNumber, price) {
-      sessionStorage.setItem('selectedFlight', flightNumber);
-      sessionStorage.setItem('flightPrice', price);
-      window.location.href = 'booking.html';
-    }
-    
-    window.addEventListener('load', () => {
-      const flights = JSON.parse(sessionStorage.getItem('flights')) || generateDummyFlights();
-      renderFlights(flights);
-    });
-
-    function generateDummyFlights() {
-      return [
-        {
-          flight: 'BA123',
-          from: 'JFK',
-          to: 'LHR',
-          departTime: '08:30',
-          arrivalTime: '20:30',
-          duration: '10h',
-          stops: 'Non-stop',
-          airline: 'British Airways',
-          aircraft: 'Boeing 777',
-          price: 675
-        },
-        {
-          flight: 'AF456',
-          from: 'JFK',
-          to: 'LHR',
-          departTime: '10:15',
-          arrivalTime: '23:45',
-          duration: '11h 30m',
-          stops: '1 Stop (CDG)',
-          airline: 'Air France',
-          aircraft: 'Airbus A350',
-          price: 545
-        },
-        {
-          flight: 'LH789',
-          from: 'JFK',
-          to: 'LHR',
-          departTime: '14:00',
-          arrivalTime: '02:00',
-          duration: '10h 00m',
-          stops: 'Non-stop',
-          airline: 'Lufthansa',
-          aircraft: 'Boeing 787',
-          price: 750
-        }
-      ];
-    }
-  </script>
+  <script src="{{ url_for('static', filename='components/navbar.js') }}"></script>
+  <script src="{{ url_for('static', filename='components/footer.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
 </html>

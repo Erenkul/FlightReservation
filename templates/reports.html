@@ -32,7 +32,55 @@
               {% if data.top_flights %}
                 {% for row in data.top_flights %}
                   <tr>
-@@ -83,30 +83,30 @@
+                    <td>{{ row[0] }}</td>
+                    <td>{{ row[1] }}</td>
+                    <td>{{ row[2] }}</td>
+                    <td>{{ row[3] }}</td>
+                  </tr>
+                {% endfor %}
+              {% else %}
+                <tr><td colspan="4" style="text-align:center;">No data</td></tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Capacity over average -->
+      <section class="card" style="margin-bottom: 1.5rem;">
+        <h2 style="margin-bottom: 0.75rem;">Flights Above Avg Capacity</h2>
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Flight No</th>
+                <th>Aircraft</th>
+                <th>Capacity</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% if data.capacity_over_avg %}
+                {% for row in data.capacity_over_avg %}
+                  <tr>
+                    <td>{{ row[0] }}</td>
+                    <td>{{ row[1] }}</td>
+                    <td>{{ row[2] }}</td>
+                  </tr>
+                {% endfor %}
+              {% else %}
+                <tr><td colspan="3" style="text-align:center;">No data</td></tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Bags by gate -->
+      <section class="card">
+        <h2 style="margin-bottom: 0.75rem;">Baggage by Gate</h2>
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
               <tr>
                 <th>Gate</th>
                 <th>Total Bags</th>
@@ -58,8 +106,7 @@
 
   <custom-footer></custom-footer>
 
- 
-  <script src="{{ url_for('static', filename='js/components/navbar.js') }}"></script>
-  <script src="{{ url_for('static', filename='js/components/footer.js') }}"></script>
+  <script src="{{ url_for('static', filename='components/navbar.js') }}"></script>
+  <script src="{{ url_for('static', filename='components/footer.js') }}"></script>
 </body>
 </html>

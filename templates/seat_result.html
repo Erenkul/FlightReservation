@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Seat Confirmation - SkyVoyage Elite</title>
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/animation.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/animation.css') }}">
 </head>
 <body>
   <custom-navbar></custom-navbar>
@@ -13,42 +13,54 @@
   <main class="confirmation-main">
     <div class="container confirmation-container">
       <div class="card confirmation-center">
-        <div class="confirmation-success">✓</div>
-        <h1 class="confirmation-title">Seat Confirmed!</h1>
-        <p style="color: #666; margin-bottom: 2rem;">Your seat has been successfully reserved.</p>
+        <div class="confirmation-success" style="color: #10b981; font-size: 4rem; margin-bottom: 1rem;">✓</div>
+        
+        <h1 class="confirmation-title">Seat Reserved!</h1>
+        <p style="color: #666; margin-bottom: 2rem;">Your seat has been temporarily held. Please complete your booking.</p>
 
-        <div style="background: #f0fdf4; border: 2px solid #10b981; border-radius: 0.75rem; padding: 2rem; margin-bottom: 2rem;">
-          <div style="font-size: 3rem; margin-bottom: 1rem;" id="selectedSeatDisplay">--</div>
-          <p style="margin: 0; color: #666;" id="seatTypeDisplay">Select a seat</p>
+        <div style="background: linear-gradient(135deg, #f0fdf4, #e0f2fe); border: 2px solid #10b981; border-radius: 1rem; padding: 2rem; margin-bottom: 2rem;">
+          <div style="font-size: 3.5rem; font-weight: 800; color: #0f172a; margin-bottom: 0.5rem;" id="selectedSeatDisplay">--</div>
+          <p style="margin: 0; color: #64748b; font-weight: 600;" id="seatTypeDisplay">Select a seat</p>
         </div>
 
-        <div class="itinerary-section" style="text-align: left;">
-          <h3 style="margin-top: 0;">Summary</h3>
+        <div class="itinerary-section" style="text-align: left; background: #f8fafc; padding: 1.5rem; border-radius: 1rem; border: 1px solid var(--border);">
+          <h3 style="margin-top: 0; margin-bottom: 1rem; color: var(--primary);">Selection Summary</h3>
+          
           <div class="price-row" style="display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid var(--border);">
-            <span>Passenger</span>
+            <span style="color: #64748b;">Passenger</span>
             <strong>John Doe</strong>
           </div>
+          
           <div class="price-row" style="display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid var(--border);">
-            <span>Seat(s)</span>
+            <span style="color: #64748b;">Seat(s)</span>
             <strong id="seatSummary">--</strong>
           </div>
-          <div class="price-row" style="display: flex; justify-content: space-between; padding: 0.75rem 0;">
-            <span>Total</span>
+          
+          <div class="price-row" style="display: flex; justify-content: space-between; padding: 0.75rem 0; margin-top: 0.5rem;">
+            <span style="font-weight: 700;">Total Price</span>
             <strong style="color: var(--accent); font-size: 1.2rem;">$1,635.50</strong>
           </div>
         </div>
 
-        <button class="btn btn-primary" style="width: 100%; padding: 1rem; margin: 2rem 0 1rem 0;" onclick="completeBooking()">Complete Booking</button>
-        <button class="btn btn-outline" style="width: 100%; padding: 1rem;" onclick="window.location.href='seat.html'">Change Seat</button>
+        <div style="display: flex; gap: 1rem; margin-top: 2rem; flex-direction: column;">
+          <button class="btn btn-primary" style="width: 100%; padding: 1rem; font-size: 1.1rem;" onclick="completeBooking()">
+            Complete Booking
+          </button>
+          
+          <a href="{{ url_for('seat_selection') }}" class="btn btn-outline" style="width: 100%; padding: 1rem; text-decoration: none; text-align: center;">
+            Change Seat
+          </a>
+        </div>
       </div>
     </div>
   </main>
 
   <custom-footer></custom-footer>
 
-  <script src="components/navbar.js"></script>
-  <script src="components/footer.js"></script>
-  <script src="js/script.js"></script>
+  <script src="{{ url_for('static', filename='components/navbar.js') }}"></script>
+  <script src="{{ url_for('static', filename='components/footer.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+  
   <script>
     // Load selected seats from localStorage
     window.addEventListener('DOMContentLoaded', () => {
@@ -58,35 +70,42 @@
       const seatSummary = document.getElementById('seatSummary');
       
       if (seats.length > 0) {
-        seatDisplay.textContent = seats[0];
+        // Tek koltuk gösterimi (ilk seçileni al)
+        const mainSeat = seats[0];
+        seatDisplay.textContent = mainSeat;
         seatSummary.textContent = seats.join(', ');
-        const col = seats[0].slice(-1);
-        if (col === 'A' || col === 'F') {
+        
+        // Koltuk tipini belirle
+        const col = mainSeat.slice(-1);
+        if (['A', 'F'].includes(col)) {
           seatType.textContent = 'Window Seat';
-        } else if (col === 'C' || col === 'D') {
+        } else if (['C', 'D'].includes(col)) {
           seatType.textContent = 'Aisle Seat';
         } else {
           seatType.textContent = 'Middle Seat';
         }
+      } else {
+        // Hiç koltuk seçilmediyse geri gönder
+        window.location.href = "{{ url_for('seat_selection') }}";
       }
     });
     
     function completeBooking() {
-      // Save booking to localStorage
+      // Form oluşturup gönderme
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = "{{ url_for('confirm_booking') }}";
+      
+      // Koltuk bilgisini ekle
       const seats = JSON.parse(localStorage.getItem('skyvoyage_seats') || '[]');
-      const booking = {
-        id: 'SKY' + Date.now(),
-        pnr: 'SK' + Math.random().toString(36).substring(2, 8).toUpperCase(),
-        seats: seats,
-        date: new Date().toISOString()
-      };
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = 'selected_seat';
+      input.value = seats[0] || '';
       
-      const allBookings = JSON.parse(localStorage.getItem('skyvoyage_all_bookings') || '[]');
-      allBookings.push(booking);
-      localStorage.setItem('skyvoyage_all_bookings', JSON.stringify(allBookings));
-      localStorage.setItem('skyvoyage_booking', JSON.stringify(booking));
-      
-      window.location.href = 'confirmation.html';
+      form.appendChild(input);
+      document.body.appendChild(form);
+      form.submit();
     }
   </script>
 </body>

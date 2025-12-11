@@ -47,6 +47,15 @@
             <p class="sidebar-label">Passenger</p>
             <p class="sidebar-value">{{ session.get('passenger', {}).get('first_name', 'Passenger') }}</p>
           </div>
+          
+          <div class="sidebar-section">
+            <p class="sidebar-label">Class</p>
+            <select name="class_type" id="classTypeSelect" class="search-input" style="width: 100%; margin-top: 0.5rem;">
+              <option value="Economy">Economy Class</option>
+              <option value="Business">Business Class</option>
+            </select>
+          </div>
+          
           <div class="sidebar-section">
             <p class="sidebar-label">Selected Seats</p>
             <p class="sidebar-value" id="selectedSeatCount">0</p>
@@ -60,6 +69,7 @@
           
           <form action="{{ url_for('seat_selection') }}" method="POST" onsubmit="return prepareSeatSubmission(event)">
             <input type="hidden" name="selected_seat" id="hiddenSeatInput">
+            <input type="hidden" name="class_type" id="hiddenClassInput">
             <button type="submit" class="btn btn-primary" style="width: 100%; padding: 1rem;">Continue to Payment</button>
           </form>
 
@@ -76,6 +86,9 @@
   <script src="{{ url_for('static', filename='js/script.js') }}"></script>
   
   <script>
+    // DB'den gelen rezerve koltukları global değişkene aktar
+    const RESERVED_SEATS_DB = {{ reserved_seats|tojson|safe }};
+    
     // Gönderimden önce localStorage'daki koltuğu form inputuna aktar
     function prepareSeatSubmission(e) {
       const seats = JSON.parse(localStorage.getItem('skyvoyage_seats') || '[]');
@@ -86,6 +99,7 @@
       }
       // Tek yolcu varsayımıyla ilk koltuğu alıyoruz
       document.getElementById('hiddenSeatInput').value = seats[0];
+      document.getElementById('hiddenClassInput').value = document.getElementById('classTypeSelect').value;
       return true;
     }
   </script>

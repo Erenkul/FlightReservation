@@ -46,6 +46,10 @@
 
               <div class="trip-body">
                 <div>
+                  <p class="label">Passenger</p>
+                  <p class="value">{{ trip[7] }} {{ trip[8] }}</p>
+                </div>
+                <div>
                   <p class="label">Gate</p>
                   <p class="value">{{ trip[3] }}</p>
                 </div>
@@ -67,6 +71,7 @@
                 <form method="POST" action="/booking/update" class="inline-form">
                   <input type="hidden" name="flight_no" value="{{ trip[1] }}">
                   <input type="hidden" name="booking_date" value="{{ trip[0].strftime('%Y-%m-%d %H:%M:%S') if trip[0] else '' }}">
+                  <input type="hidden" name="ssn" value="{{ trip[9] }}">
                   <input type="text" name="seat_no" placeholder="New seat" class="search-input">
                   <input type="number" step="0.01" name="ticket_price" placeholder="Price" class="search-input">
                   <input type="number" name="baggage_count" placeholder="Bags" class="search-input">
@@ -75,6 +80,7 @@
                 <form method="POST" action="/booking/delete">
                   <input type="hidden" name="flight_no" value="{{ trip[1] }}">
                   <input type="hidden" name="booking_date" value="{{ trip[0].strftime('%Y-%m-%d %H:%M:%S') if trip[0] else '' }}">
+                  <input type="hidden" name="ssn" value="{{ trip[9] }}">
                   <button class="btn btn-danger" type="submit">Delete booking</button>
                 </form>
               </div>

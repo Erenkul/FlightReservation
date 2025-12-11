@@ -8,13 +8,18 @@ const STORAGE_KEYS = {
   BOOKING: "skyvoyage_booking",
 }
 
-// Sample reserved seats
-const RESERVED_SEATS = ["1A", "1B", "2F", "5C", "12A", "15D", "20E", "25B"]
+// Reserved seats - DB'den gelecek (global değişken)
+let RESERVED_SEATS = []
 
 // Initialize seat map
 function loadSeatMap() {
   const container = document.getElementById("seatMapContainer")
   if (!container) return
+
+  // DB'den gelen rezerve koltukları al (eğer tanımlıysa)
+  if (typeof RESERVED_SEATS_DB !== 'undefined') {
+    RESERVED_SEATS = RESERVED_SEATS_DB
+  }
 
   container.innerHTML = ""
   renderSeats(container)
